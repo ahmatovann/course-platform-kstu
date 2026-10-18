@@ -134,3 +134,6 @@ MAILERS = {
 }
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Своя модель пользователя вместо стандартной (accounts/models.py)
+AUTH_USER_MODEL = 'accounts.User'
