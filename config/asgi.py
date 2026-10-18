@@ -1,3 +1,4 @@
+# Совместно: настройки проекта
 """
 ASGI config for config project.
 

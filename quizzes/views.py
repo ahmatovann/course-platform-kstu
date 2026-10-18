@@ -1,3 +1,4 @@
+# Ответственная: Нургуль (Ф-9, Ф-10)
 from django.shortcuts import render
 
 # Create your views here.

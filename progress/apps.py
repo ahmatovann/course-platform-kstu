@@ -1,3 +1,4 @@
+# Ответственная: Нургуль (Ф-14)
 from django.apps import AppConfig
 
 

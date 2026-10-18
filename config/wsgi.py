@@ -1,3 +1,4 @@
+# Совместно: настройки проекта
 """
 WSGI config for config project.
 

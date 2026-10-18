@@ -1,3 +1,4 @@
+# Совместно: настройки проекта
 """
 URL configuration for config project.
 

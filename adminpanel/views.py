@@ -1,3 +1,4 @@
+# Ответственная: Фатима (А-1 – А-6)
 from django.shortcuts import render
 
 # Create your views here.

@@ -1,3 +1,4 @@
+# Совместно: настройки проекта
 """
 Django settings for config project.
 
