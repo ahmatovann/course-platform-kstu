@@ -142,3 +142,8 @@ AUTH_USER_MODEL = 'accounts.User'
 # Они сохраняются в папку media/ и открываются по адресу /media/...
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Ф-2. Вход и выход (Нургуль)
+LOGIN_URL = 'login'        # куда отправлять, если страница только для вошедших
+LOGIN_REDIRECT_URL = '/'   # после входа — на главную (каталог курсов)
+LOGOUT_REDIRECT_URL = '/'  # после выхода — тоже на главную
