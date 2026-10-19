@@ -1,1 +1,41 @@
 {# Совместно: общий каркас страниц #}
+{# Все страницы сайта «наследуют» этот файл: {% extends 'base.html' %} #}
+{# и вставляют своё содержимое в блок content. #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# Заголовок вкладки: страница может подставить свой через блок title #}
+    <title>{% block title %}Course Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {# Шапка сайта: логотип и меню #}
+    <header class="header">
+        <a class="logo" href="/">Course Platform</a>
+        <nav class="menu">
+            {# Ф-4 (Фатима): каталог курсов — главная страница #}
+            <a href="/">Каталог</a>
+            {# Ф-1, Ф-2 (Нургуль): пункты меню зависят от того, вошёл ли человек #}
+            {% if user.is_authenticated %}
+                <span class="user-email">{{ user.email }}</span>
+                {# Выход только через POST-запрос, поэтому это форма с кнопкой #}
+                <form class="logout" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Выйти</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Вход</a>
+                <a href="{% url 'register' %}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {# Здесь появляется содержимое конкретной страницы #}
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
