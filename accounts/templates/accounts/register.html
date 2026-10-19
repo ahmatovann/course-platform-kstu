@@ -1,1 +1,18 @@
 {# Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13) #}
+{# Ф-1. Регистрация: имя, почта, пароль. Форма — RegisterForm из accounts/forms.py #}
+{% extends 'base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h1>Регистрация</h1>
+    <form method="post">
+        {% csrf_token %}
+        {# form.as_p выводит каждое поле с подписью и ошибками #}
+        {{ form.as_p }}
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+</div>
+{% endblock %}

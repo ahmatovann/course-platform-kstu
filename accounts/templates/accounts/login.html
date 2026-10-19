@@ -1,1 +1,26 @@
 {# Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13) #}
+{# Ф-2. Вход по почте и паролю. Форму создаёт LoginView из accounts/urls.py #}
+{% extends 'base.html' %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h1>Вход</h1>
+
+    {# Ошибка «неверная почта или пароль» — показывает сам Django #}
+    {% if form.non_field_errors %}
+        <p class="error">Неверная почта или пароль.</p>
+    {% endif %}
+
+    <form method="post">
+        {# csrf_token — защита формы от подделки запроса с чужого сайта #}
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+
+    <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+    <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a></p>
+</div>
+{% endblock %}
