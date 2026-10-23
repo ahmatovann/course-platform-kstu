@@ -33,4 +33,8 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
         template_name='accounts/password_reset_complete.html',
     ), name='password_reset_complete'),
+
+    # Ф-13. Профиль и смена пароля — свои функции в accounts/views.py
+    path('profile/', views.profile, name='profile'),
+    path('password-change/', views.password_change, name='password_change'),
 ]
