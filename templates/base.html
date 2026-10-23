@@ -10,6 +10,8 @@
     {# Заголовок вкладки: страница может подставить свой через блок title #}
     <title>{% block title %}Course Platform{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {# Совместно: сюда страница может подключить свой CSS-файл #}
+    {% block styles %}{% endblock %}
 </head>
 <body>
     {# Шапка сайта: логотип и меню #}
@@ -20,6 +22,8 @@
             <a href="/">Каталог</a>
             {# Ф-1, Ф-2 (Нургуль): пункты меню зависят от того, вошёл ли человек #}
             {% if user.is_authenticated %}
+                {# Ф-13 (Нургуль): личный кабинет #}
+                <a href="{% url 'profile' %}">Профиль</a>
                 <span class="user-email">{{ user.email }}</span>
                 {# Выход только через POST-запрос, поэтому это форма с кнопкой #}
                 <form class="logout" method="post" action="{% url 'logout' %}">
@@ -35,6 +39,12 @@
 
     {# Здесь появляется содержимое конкретной страницы #}
     <main class="container">
+        {# Совместно: короткие сообщения вверху страницы («Профиль сохранён», «Вы записались на курс») #}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 </body>
