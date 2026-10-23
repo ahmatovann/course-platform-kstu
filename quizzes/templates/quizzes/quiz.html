@@ -1,1 +1,41 @@
-{# Ответственная: Нургуль (Ф-9, Ф-10) #}
+{# Ответственная: Нургуль (Ф-9) #}
+{# Ф-9. Тест в конце уровня: вопросы и варианты ответов #}
+{# Правильные ответы сюда НЕ передаются — проверка в quizzes/services.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Стили этой страницы лежат в отдельном файле static/css/quiz.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/quiz.css' %}">{% endblock %}
+
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="quiz">
+    <p class="muted">{{ quiz.level.course }} · {{ quiz.level.title }}</p>
+    <h1>{{ quiz.title }}</h1>
+    <p class="muted">Для сдачи нужно не меньше {{ quiz.pass_score }} % правильных ответов.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% for question in questions %}
+            <div class="question">
+                <p><b>{{ forloop.counter }}. {{ question.text }}</b></p>
+                {# У всех вариантов одного вопроса одно имя — можно выбрать только один #}
+                {% for answer in question.answers.all %}
+                    <label class="answer">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}"
+                            {% if answer.id == question.chosen_id %}checked{% endif %}>
+                        {{ answer.text }}
+                    </label>
+                {% endfor %}
+            </div>
+        {% empty %}
+            <p class="empty">В этом тесте пока нет вопросов.</p>
+        {% endfor %}
+
+        {% if questions %}
+            <button type="submit">Отправить ответы</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
