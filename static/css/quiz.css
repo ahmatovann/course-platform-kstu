@@ -1,0 +1,29 @@
+/* Ответственная: Нургуль (Ф-9) */
+/* Ф-9 (Нургуль). Тест: карточка вопроса и варианты ответов */
+.quiz {
+    max-width: 700px;
+    margin: 0 auto;
+}
+.question {
+    margin-bottom: 16px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.answer {
+    display: block;
+    padding: 6px 0;
+    cursor: pointer;
+}
+.answer input {
+    margin-right: 8px;
+}
+.quiz button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    background: #2d3a8c;
+    color: #fff;
+    cursor: pointer;
+}

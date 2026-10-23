@@ -10,6 +10,8 @@
     {# Заголовок вкладки: страница может подставить свой через блок title #}
     <title>{% block title %}Course Platform{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {# Совместно: сюда страница может подключить свой CSS-файл #}
+    {% block styles %}{% endblock %}
 </head>
 <body>
     {# Шапка сайта: логотип и меню #}
@@ -35,6 +37,12 @@
 
     {# Здесь появляется содержимое конкретной страницы #}
     <main class="container">
+        {# Совместно: короткие сообщения вверху страницы («Профиль сохранён», «Вы записались на курс») #}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message message-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 </body>
