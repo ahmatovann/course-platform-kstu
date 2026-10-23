@@ -1,0 +1,23 @@
+/* Ответственная: Нургуль (Ф-13) */
+/* Ф-13 (Нургуль). Профиль: круглый аватар */
+.avatar {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #2d3a8c;
+    color: #fff;
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.form-box input[type="checkbox"] {
+    width: auto;
+}

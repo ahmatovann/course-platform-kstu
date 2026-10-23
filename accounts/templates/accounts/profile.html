@@ -1,1 +1,37 @@
-{# Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13) #}
+{# Ответственная: Нургуль (Ф-13) #}
+{# Ф-13. Профиль: имя, почта, аватар и ссылка на смену пароля #}
+{# Данные приходят из функции profile в accounts/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Стили этой страницы лежат в отдельном файле static/css/profile.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/profile.css' %}">{% endblock %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="form-box profile">
+    <h1>Профиль</h1>
+
+    {# Аватар: если загружен — картинка, если нет — первая буква имени #}
+    <div class="avatar">
+        {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Аватар">
+        {% else %}
+            <span>{{ user.first_name|default:user.email|first|upper }}</span>
+        {% endif %}
+    </div>
+
+    {# Почту показываем, но не меняем: по ней человек входит на сайт #}
+    <p><b>Почта:</b> {{ user.email }}</p>
+
+    {# enctype="multipart/form-data" — без этого файл аватара не отправится #}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <p><a href="{% url 'password_change' %}">Сменить пароль</a></p>
+</div>
+{% endblock %}

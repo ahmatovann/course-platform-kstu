@@ -87,3 +87,29 @@ body {
     color: #fff;
     cursor: pointer;
 }
+
+/* Совместно: сообщения вверху страницы, кнопки-ссылки, серый текст */
+.message {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: #e6f4ea;
+    color: #1e6b34;
+}
+.message-error {
+    background: #fdecea;
+    color: #c0392b;
+}
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #2d3a8c;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+.muted {
+    color: #777;
+}
