@@ -1,0 +1,13 @@
+{# Ответственная: Фатима (Ф-4) #}
+{# Обложка курса: первая буква названия и «дорожка» из уровней. #}
+{# Подключается в шаблонах строкой {% include 'courses/_cover.html' with letter=... %} #}
+<div class="cover">
+    <span class="cover-letter">{{ letter }}</span>
+    {# Рисунок в формате SVG: линия-дорожка и три точки-уровня. aria-hidden — экранный диктор его пропускает #}
+    <svg viewBox="0 0 360 200" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 170 C 40 166, 80 112, 150 104 S 270 52, 360 46" fill="none" stroke="#2d3a8c" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+        <circle cx="46" cy="162" r="10" fill="#fff" stroke="#2d3a8c" stroke-width="5"/>
+        <circle cx="152" cy="103" r="10" fill="#fff" stroke="#2d3a8c" stroke-width="5"/>
+        <circle cx="262" cy="62" r="12" fill="#f2b705"/>
+    </svg>
+</div>
