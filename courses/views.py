@@ -57,7 +57,12 @@ def course_detail(request, pk):
     # 3. Сколько всего уроков в курсе — для цифр вверху страницы
     lessons_count = Lesson.objects.filter(level__course=course).count()
 
-    # 4. Записан ли уже человек на этот курс? От этого зависит,
+    # 4. Первый урок курса — для кнопки «Начать первый урок» (Ф-7).
+    #    order_by: сначала по номеру уровня, потом по номеру урока.
+    first_lesson = Lesson.objects.filter(level__course=course).order_by(
+        'level__order', 'order').first()
+
+    # 5. Записан ли уже человек на этот курс? От этого зависит,
     #    что показать: кнопку «Записаться» или «Вы записаны».
     is_enrolled = (
         request.user.is_authenticated
@@ -68,6 +73,7 @@ def course_detail(request, pk):
         'course': course,
         'levels': levels,
         'lessons_count': lessons_count,
+        'first_lesson': first_lesson,
         'is_enrolled': is_enrolled,
     })
 
@@ -95,3 +101,52 @@ def my_courses(request):
     # select_related('course') — сразу берём данные курса вместе с записью
     enrollments = Enrollment.objects.filter(user=request.user).select_related('course')
     return render(request, 'courses/my_courses.html', {'enrollments': enrollments})
+
+
+# Ф-7. Какого вида файл материала: PDF, аудио или другой (презентация и т. п.).
+# Смотрим по расширению имени файла. От вида зависит, как показать файл:
+# аудио — сразу плеер на странице, остальное — ссылка «Открыть / скачать».
+def material_kind(filename):
+    name = filename.lower()
+    if name.endswith('.pdf'):
+        return 'pdf'
+    if name.endswith(('.mp3', '.wav', '.ogg', '.m4a')):
+        return 'audio'
+    return 'file'
+
+
+# Ф-7. Просмотр урока: видео, текстовое описание и файлы материалов
+@login_required
+def lesson_view(request, pk):
+    # 1. Находим урок. select_related сразу подтягивает уровень и курс.
+    lesson = get_object_or_404(
+        Lesson.objects.select_related('level__course'),
+        pk=pk, level__course__is_published=True,
+    )
+    course = lesson.level.course
+
+    # 2. Урок открыт только тем, кто записан на курс (Ф-6).
+    #    Иначе возвращаем на карточку курса с подсказкой.
+    if not Enrollment.objects.filter(user=request.user, course=course).exists():
+        messages.error(request, 'Запишитесь на курс, чтобы смотреть уроки.')
+        return redirect('courses:course_detail', pk=course.pk)
+
+    # 3. Материалы урока: к каждому файлу добавляем его вид (pdf / audio / file)
+    materials = []
+    for material in lesson.materials.all():
+        material.kind = material_kind(material.file.name)
+        materials.append(material)
+
+    # 4. Уровни и уроки курса — для панели «Программа» справа,
+    #    где текущий урок подсвечен.
+    levels = course.levels.prefetch_related('lessons')
+
+    # Открытие уровней по порядку (Ф-11) и отметка о просмотре
+    # после 90 % видео (Ф-8) — этап Э4.
+    return render(request, 'courses/lesson.html', {
+        'lesson': lesson,
+        'course': course,
+        'materials': materials,
+        'levels': levels,
+        'is_enrolled': True,
+    })
