@@ -1,0 +1,62 @@
+/* Ответственная: Фатима (Ф-7) */
+/* Ф-7. Страница урока: слева видео и текст, справа программа курса */
+.lesson-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 32px;
+    align-items: start;
+}
+.lesson-main h1 {
+    margin: 0 0 20px;
+    font-size: 32px;
+    color: #1d2333;
+}
+
+/* Видео во всю ширину левой колонки */
+.lesson-video {
+    width: 100%;
+    max-height: 480px;
+    background: #000;
+    border-radius: 14px;
+}
+.no-video {
+    padding: 80px 20px;
+    border-radius: 14px;
+    background: #e4e8f7;
+    color: #4a5163;
+    text-align: center;
+}
+.lesson-text {
+    color: #4a5163;
+    line-height: 1.6;
+}
+
+/* Материалы урока: название и ссылка/плеер в одну строку */
+.material {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid #e3e6ee;
+    border-radius: 10px;
+}
+
+/* Подсветка текущего урока в панели «Программа» */
+.program li.current {
+    background: #e4e8f7;
+    font-weight: bold;
+}
+.program li.current .dot {
+    border-color: #2d3a8c;
+    background: #2d3a8c;
+}
+
+/* На телефоне программа уходит под урок */
+@media (max-width: 820px) {
+    .lesson-layout {
+        grid-template-columns: 1fr;
+    }
+}

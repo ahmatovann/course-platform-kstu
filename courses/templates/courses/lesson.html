@@ -1,1 +1,60 @@
-{# Ответственная: Фатима (Ф-4 – Ф-8, Ф-11, Ф-12) #}
+{# Ответственная: Фатима (Ф-7) #}
+{# Ф-7. Урок: видео, текстовое описание и файлы материалов #}
+{# Данные приходят из функции lesson_view в courses/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Стили: панель программы из course.css, остальное — из lesson.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/course.css' %}"><link rel="stylesheet" href="{% static 'css/lesson.css' %}">{% endblock %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="lesson-layout">
+    <div class="lesson-main">
+        {# «Хлебные крошки»: курс / уровень #}
+        <p class="crumbs">
+            <a href="{% url 'courses:course_detail' course.pk %}">{{ course.title }}</a>
+            / {{ lesson.level.title }}
+        </p>
+        <h1>{{ lesson.title }}</h1>
+
+        {# Видео урока. controls — кнопки «пуск», «пауза», громкость #}
+        {% if lesson.video %}
+            <video class="lesson-video" controls src="{{ lesson.video.url }}"></video>
+        {% else %}
+            <div class="no-video">Видео к уроку ещё не загружено</div>
+        {% endif %}
+
+        {# Текстовое описание урока #}
+        <h2>Описание урока</h2>
+        {% if lesson.description %}
+            <div class="lesson-text">{{ lesson.description|linebreaks }}</div>
+        {% else %}
+            <p class="muted">Описания пока нет.</p>
+        {% endif %}
+
+        {# Материалы: PDF, презентации, аудио #}
+        <h2>Материалы</h2>
+        {% for material in materials %}
+            <div class="material">
+                <b>{{ material.title }}</b>
+                {% if material.kind == 'audio' %}
+                    {# Аудио слушаем прямо на странице #}
+                    <audio controls src="{{ material.file.url }}"></audio>
+                {% elif material.kind == 'pdf' %}
+                    {# target="_blank" — PDF откроется в новой вкладке #}
+                    <a href="{{ material.file.url }}" target="_blank">Открыть PDF</a>
+                {% else %}
+                    <a href="{{ material.file.url }}" download>Скачать файл</a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="muted">К этому уроку нет дополнительных материалов.</p>
+        {% endfor %}
+    </div>
+
+    {# Справа — программа курса, текущий урок подсвечен (courses/_program.html) #}
+    {% include 'courses/_program.html' %}
+</div>
+{% endblock %}

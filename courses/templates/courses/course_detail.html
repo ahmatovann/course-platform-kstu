@@ -1,4 +1,4 @@
-{# Ответственная: Фатима (Ф-5, Ф-6) #}
+{# Ответственная: Фатима (Ф-5, Ф-6, Ф-7) #}
 {# Ф-5. Карточка курса: описание, уровни и уроки. Ф-6. Кнопка «Записаться» #}
 {# Данные приходят из функции course_detail в courses/views.py #}
 {% extends 'base.html' %}
@@ -28,6 +28,10 @@
         {# Ф-6. Запись на курс #}
         {% if is_enrolled %}
             <p class="badge">✓ Вы записаны на этот курс</p>
+            {# Ф-7. Кнопка сразу на первый урок курса #}
+            {% if first_lesson %}
+                <p><a class="btn-big" href="{% url 'courses:lesson' first_lesson.pk %}">Начать первый урок</a></p>
+            {% endif %}
         {% elif user.is_authenticated %}
             {# POST-форма: запись создаётся только по нажатию кнопки #}
             <form method="post" action="{% url 'courses:enroll' course.pk %}">
