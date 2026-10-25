@@ -4,7 +4,7 @@
 # Своя панель администратора (А-1 – А-6) будет на этапе Э5.
 from django.contrib import admin
 
-from .models import Course, Enrollment, Lesson, Level
+from .models import Course, Enrollment, Lesson, Level, Material
 
 
 # Inline — уровни редактируются прямо на странице курса
@@ -37,10 +37,17 @@ class LevelAdmin(admin.ModelAdmin):
     inlines = [LessonInline]
 
 
+# Ф-7. Файлы урока (PDF, презентации, аудио) — прямо на странице урока
+class MaterialInline(admin.TabularInline):
+    model = Material
+    extra = 1
+
+
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'order')
     list_filter = ('level__course',)
+    inlines = [MaterialInline]
 
 
 # Ф-6. Записи на курсы — только просмотр, кто куда записан
