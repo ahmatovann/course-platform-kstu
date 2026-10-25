@@ -1,0 +1,39 @@
+{# Ответственная: Фатима (Ф-5) #}
+{# Панель «Программа»: уровни курса по порядку, в каждом — уроки и тест. #}
+{# Подключается на странице курса: {% include 'courses/_program.html' %} #}
+<aside class="program">
+    <h2>Программа</h2>
+    {% for level in levels %}
+        <div class="program-level">
+            {# Кружок с номером уровня и название #}
+            <div class="level-head">
+                <span class="level-num">{{ level.order }}</span>
+                <div>
+                    <b>Уровень {{ level.order }}. {{ level.title }}</b>
+                    {# |length — сколько уроков в уровне #}
+                    <small>Уроков: {{ level.lessons.all|length }}</small>
+                </div>
+            </div>
+            <ul>
+                {% for lesson in level.lessons.all %}
+                    <li><span class="dot"></span>{{ lesson.title }}</li>
+                {% empty %}
+                    <li class="muted">Уроков пока нет</li>
+                {% endfor %}
+                {# Тест в конце уровня (Ф-9, страница Нургуль /quizzes/<номер>/) #}
+                {% if level.quiz %}
+                    <li class="test">
+                        <span class="square"></span>
+                        {% if is_enrolled %}
+                            <a href="/quizzes/{{ level.quiz.pk }}/">Тест уровня</a>
+                        {% else %}
+                            Тест уровня
+                        {% endif %}
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% empty %}
+        <p class="muted">Уровни ещё не добавлены.</p>
+    {% endfor %}
+</aside>

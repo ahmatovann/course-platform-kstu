@@ -1,0 +1,28 @@
+{# Ответственная: Фатима (Ф-6) #}
+{# Ф-6. «Мои курсы»: курсы, на которые записан пользователь #}
+{# Данные приходят из функции my_courses в courses/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Карточки выглядят как в каталоге — берём стили из catalog.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}">{% endblock %}
+
+{% block title %}Мои курсы{% endblock %}
+
+{% block content %}
+<h1>Мои курсы</h1>
+<div class="courses">
+    {% for enrollment in enrollments %}
+        <a class="course-card" href="{% url 'courses:course_detail' enrollment.course.pk %}">
+            {% include 'courses/_cover.html' with letter=enrollment.course.title|first|upper %}
+            <div class="course-body">
+                <h2>{{ enrollment.course.title }}</h2>
+                {# |date:"d.m.Y" — дата записи в виде 25.10.2026 #}
+                <p class="course-meta">Записаны {{ enrollment.enrolled_at|date:"d.m.Y" }}</p>
+            </div>
+        </a>
+    {% empty %}
+        <p class="empty">Вы ещё не записались ни на один курс. <a href="{% url 'courses:catalog' %}">Перейти в каталог</a></p>
+    {% endfor %}
+</div>
+{% endblock %}

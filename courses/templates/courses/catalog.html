@@ -1,4 +1,4 @@
-{# Ответственная: Фатима (Ф-4) #}
+{# Ответственная: Фатима (Ф-4, Ф-5) #}
 {# Ф-4. Каталог курсов: список опубликованных курсов и поиск по названию #}
 {# Данные приходят из функции catalog в courses/views.py #}
 {% extends 'base.html' %}
@@ -29,7 +29,8 @@
 {# Список курсов. Если курсов нет — показываем блок {% empty %} #}
 <div class="courses">
     {% for course in courses %}
-        <div class="course-card">
+        {# Ф-5. Вся карточка — ссылка на страницу курса /course/<номер>/ #}
+        <a class="course-card" href="{% url 'courses:course_detail' course.pk %}">
             {# Обложка: первая буква названия (фильтры first и upper) #}
             {% include 'courses/_cover.html' with letter=course.title|first|upper %}
             <div class="course-body">
@@ -38,9 +39,8 @@
                 <p>{{ course.description|truncatewords:20 }}</p>
                 {# Числа посчитаны в функции catalog через annotate + Count #}
                 <p class="course-meta">Уровней: {{ course.levels_count }} · Уроков: {{ course.lessons_count }}</p>
-                {# Переход на карточку курса появится на этапе Э2 (Ф-5) #}
             </div>
-        </div>
+        </a>
     {% empty %}
         {% if query %}
             <p class="empty">По запросу «{{ query }}» ничего не найдено.</p>
