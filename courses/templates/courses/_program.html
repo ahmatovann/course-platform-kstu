@@ -1,6 +1,7 @@
-{# Ответственная: Фатима (Ф-5) #}
+{# Ответственная: Фатима (Ф-5, Ф-7) #}
 {# Панель «Программа»: уровни курса по порядку, в каждом — уроки и тест. #}
-{# Подключается на странице курса: {% include 'courses/_program.html' %} #}
+{# Подключается на странице курса и на странице урока: {% include 'courses/_program.html' %} #}
+{# Ф-7. Записанным уроки — ссылки; текущий урок (переменная lesson) подсвечен #}
 <aside class="program">
     <h2>Программа</h2>
     {% for level in levels %}
@@ -15,8 +16,17 @@
                 </div>
             </div>
             <ul>
-                {% for lesson in level.lessons.all %}
-                    <li><span class="dot"></span>{{ lesson.title }}</li>
+                {# item — урок в списке (имя lesson занято текущим уроком) #}
+                {% for item in level.lessons.all %}
+                    {% if is_enrolled %}
+                        {# class="current" — подсветка урока, который открыт сейчас #}
+                        <li{% if item.pk == lesson.pk %} class="current"{% endif %}>
+                            <span class="dot"></span>
+                            <a href="{% url 'courses:lesson' item.pk %}">{{ item.title }}</a>
+                        </li>
+                    {% else %}
+                        <li><span class="dot"></span>{{ item.title }}</li>
+                    {% endif %}
                 {% empty %}
                     <li class="muted">Уроков пока нет</li>
                 {% endfor %}

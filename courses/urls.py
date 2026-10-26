@@ -15,4 +15,6 @@ urlpatterns = [
     # Ф-6. Запись на курс (кнопка «Записаться») и список «Мои курсы»
     path('course/<int:pk>/enroll/', views.enroll, name='enroll'),
     path('my-courses/', views.my_courses, name='my_courses'),
+    # Ф-7. Страница урока, например /lesson/3/
+    path('lesson/<int:pk>/', views.lesson_view, name='lesson'),
 ]
