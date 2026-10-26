@@ -12,6 +12,8 @@ urlpatterns = [
     path('quizzes/', include('quizzes.urls')),
     # Ф-1, Ф-2, Ф-3. Регистрация, вход, выход, восстановление пароля (Нургуль)
     path('accounts/', include('accounts.urls')),
+    # Ф-4. Каталог курсов — на главной странице (Фатима)
+    path('', include('courses.urls')),
 ]
 
 # В режиме разработки отдаём загруженные файлы (видео, PDF, аватары) из media/

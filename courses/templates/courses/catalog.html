@@ -1,1 +1,52 @@
-{# Ответственная: Фатима (Ф-4 – Ф-8, Ф-11, Ф-12) #}
+{# Ответственная: Фатима (Ф-4) #}
+{# Ф-4. Каталог курсов: список опубликованных курсов и поиск по названию #}
+{# Данные приходят из функции catalog в courses/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Стили этой страницы лежат в отдельном файле static/css/catalog.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}">{% endblock %}
+
+{% block title %}Каталог курсов{% endblock %}
+
+{% block content %}
+{# Верхний блок страницы: крупный заголовок, пояснение и строка поиска #}
+<section class="hero">
+    <h1>Учитесь шаг за шагом, в своём темпе</h1>
+    <p class="hero-text">Смотрите видеоуроки, сдавайте тест в конце уровня и открывайте следующий. После последнего уровня — сертификат.</p>
+
+    {# Форма поиска. method="get" — текст уходит в адрес: /?q=текст #}
+    {# Функция catalog в courses/views.py читает его как request.GET['q'] #}
+    <form class="search" method="get" action="{% url 'courses:catalog' %}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Найти курс по названию">
+        <button type="submit">Найти</button>
+        {% if query %}
+            <a class="search-reset" href="{% url 'courses:catalog' %}">Сбросить</a>
+        {% endif %}
+    </form>
+</section>
+
+{# Список курсов. Если курсов нет — показываем блок {% empty %} #}
+<div class="courses">
+    {% for course in courses %}
+        <div class="course-card">
+            {# Обложка: первая буква названия (фильтры first и upper) #}
+            {% include 'courses/_cover.html' with letter=course.title|first|upper %}
+            <div class="course-body">
+                <h2>{{ course.title }}</h2>
+                {# truncatewords:20 — показываем только первые 20 слов описания #}
+                <p>{{ course.description|truncatewords:20 }}</p>
+                {# Числа посчитаны в функции catalog через annotate + Count #}
+                <p class="course-meta">Уровней: {{ course.levels_count }} · Уроков: {{ course.lessons_count }}</p>
+                {# Переход на карточку курса появится на этапе Э2 (Ф-5) #}
+            </div>
+        </div>
+    {% empty %}
+        {% if query %}
+            <p class="empty">По запросу «{{ query }}» ничего не найдено.</p>
+        {% else %}
+            <p class="empty">Пока нет опубликованных курсов.</p>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
