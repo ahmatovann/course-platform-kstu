@@ -127,11 +127,49 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Доп. функция (Нургуль): настоящая почта через Gmail.
+# Адрес и пароль приложения Gmail НЕ пишем в код: они лежат в файле .env
+# рядом с manage.py. Файл .env есть в .gitignore — в GitHub он не попадает.
+# Образец файла — .env.example.
+import os
+
+# 1. Читаем файл .env: строки вида ИМЯ=значение становятся переменными окружения
+_env_file = BASE_DIR / '.env'
+if _env_file.exists():
+    for _line in _env_file.read_text(encoding='utf-8').splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith('#') and '=' in _line:
+            _key, _value = _line.split('=', 1)
+            os.environ.setdefault(_key.strip(), _value.strip())
+
+_gmail_address = os.environ.get('GMAIL_ADDRESS', '')
+_gmail_password = os.environ.get('GMAIL_APP_PASSWORD', '')
+
+if _gmail_address and _gmail_password:
+    # 2. Почта и пароль приложения есть — письма уходят по-настоящему через Gmail
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': 'smtp.gmail.com',  # почтовый сервер Gmail
+                'port': 587,               # порт для защищённого соединения
+                'use_tls': True,           # письмо шифруется по дороге
+                'username': _gmail_address,
+                'password': _gmail_password,
+            },
+        },
+    }
+    # От чьего имени уходят письма сайта
+    DEFAULT_FROM_EMAIL = f'Course Platform <{_gmail_address}>'
+else:
+    # 3. Файла .env нет — письма печатаются в терминале (режим разработки)
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
+    DEFAULT_FROM_EMAIL = 'Course Platform <noreply@course-platform.local>'
+
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
