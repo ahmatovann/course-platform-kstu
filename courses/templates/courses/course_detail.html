@@ -1,1 +1,58 @@
-{# Ответственная: Фатима (Ф-4 – Ф-8, Ф-11, Ф-12) #}
+{# Ответственная: Фатима (Ф-5, Ф-6) #}
+{# Ф-5. Карточка курса: описание, уровни и уроки. Ф-6. Кнопка «Записаться» #}
+{# Данные приходят из функции course_detail в courses/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{# Стили: обложка из catalog.css, остальное — из course.css #}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/catalog.css' %}"><link rel="stylesheet" href="{% static 'css/course.css' %}">{% endblock %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+{# «Хлебные крошки» — путь назад в каталог #}
+<p class="crumbs"><a href="{% url 'courses:catalog' %}">Каталог</a></p>
+
+{# Верх страницы: слева название, цифры и кнопка, справа обложка #}
+<section class="course-hero">
+    <div>
+        <h1>{{ course.title }}</h1>
+        <p class="lead">{{ course.description|truncatewords:30 }}</p>
+
+        {# Цифры: уровней — длина списка levels, уроков — посчитано во views.py #}
+        <div class="stats">
+            <div><b>{{ levels|length }}</b><span>уровни</span></div>
+            <div><b>{{ lessons_count }}</b><span>уроки</span></div>
+        </div>
+
+        {# Ф-6. Запись на курс #}
+        {% if is_enrolled %}
+            <p class="badge">✓ Вы записаны на этот курс</p>
+        {% elif user.is_authenticated %}
+            {# POST-форма: запись создаётся только по нажатию кнопки #}
+            <form method="post" action="{% url 'courses:enroll' course.pk %}">
+                {% csrf_token %}
+                <button class="btn-big" type="submit">Записаться на курс</button>
+            </form>
+        {% else %}
+            {# ?next= — после входа человек вернётся на эту же страницу #}
+            <p><a href="{% url 'login' %}?next={{ request.path }}">Войдите</a>, чтобы записаться на курс.</p>
+        {% endif %}
+    </div>
+    {% include 'courses/_cover.html' with letter=course.title|first|upper %}
+</section>
+
+{# Низ страницы: слева описание, справа программа курса #}
+<div class="course-columns">
+    <div class="about">
+        <h2>О курсе</h2>
+        {# linebreaks — переносы строк из описания превращаются в абзацы #}
+        {{ course.description|linebreaks }}
+
+        <h2>Как проходит обучение</h2>
+        <p>Уровни идут по порядку. В каждом уровне — короткие видеоуроки, в конце — тест. Курс бесплатный: записались — и он появился в «Моих курсах».</p>
+    </div>
+    {# Ф-5. Уровни и уроки — в отдельном шаблоне courses/_program.html #}
+    {% include 'courses/_program.html' %}
+</div>
+{% endblock %}
