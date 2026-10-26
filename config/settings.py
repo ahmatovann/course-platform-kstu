@@ -133,6 +133,10 @@ MAILERS = {
     },
 }
 
+
+# Доп. функция (Нургуль): от чьего имени уходят письма сайта
+# («Ваш пароль изменён», восстановление пароля)
+DEFAULT_FROM_EMAIL = 'Course Platform <noreply@course-platform.local>'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Своя модель пользователя вместо стандартной (accounts/models.py)

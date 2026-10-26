@@ -1,10 +1,12 @@
 # Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13)
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import redirect, render
 
+from .emails import send_password_changed_email
 from .forms import ProfileForm, RegisterForm
 
 # Ф-1 Регистрация — Нургуль
@@ -38,7 +40,22 @@ def register(request):
 
 
 # Ф-2 (вход и выход) и Ф-3 (восстановление пароля) сделаны на готовых
-# классах Django — они подключены в accounts/urls.py, свои функции не нужны.
+# классах Django — они подключены в accounts/urls.py.
+
+
+# Ф-3, шаг 3 + доп. функция. Новый пароль по ссылке из письма.
+# Берём готовый класс Django PasswordResetConfirmView и добавляем одно:
+# после успешной смены пароля отправляем письмо «Ваш пароль изменён».
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+
+    # form_valid вызывается, когда новый пароль введён правильно (два раза одинаково).
+    def form_valid(self, form):
+        # super() — сначала Django сам сохраняет новый пароль
+        response = super().form_valid(form)
+        # form.user — пользователь, которому меняли пароль
+        send_password_changed_email(self.request, form.user)
+        return response
 
 
 # Ф-13. Профиль: личные данные (имя, почта) и аватар
@@ -78,7 +95,9 @@ def password_change(request):
             # После смены пароля Django завершил бы сессию.
             # update_session_auth_hash оставляет человека в аккаунте.
             update_session_auth_hash(request, user)
-            messages.success(request, 'Пароль изменён.')
+            # Доп. функция: письмо на почту «Ваш пароль изменён» (accounts/emails.py)
+            send_password_changed_email(request, user)
+            messages.success(request, 'Пароль изменён. Мы отправили письмо на вашу почту.')
             return redirect('profile')
     else:
         form = PasswordChangeForm(request.user)
