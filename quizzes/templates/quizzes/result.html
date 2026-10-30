@@ -1,1 +1,79 @@
-{# Ответственная: Нургуль (Ф-9, Ф-10) #}
+{# Ответственная: Нургуль (Ф-10) #}
+{# Ф-10. Экран результата теста. Данные приходят из result_view в quizzes/views.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}<link rel="stylesheet" href="{% static 'css/quiz.css' %}">{% endblock %}
+
+{% block title %}Результат: {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="quiz result">
+    <p class="muted">{{ course.title }} · {{ quiz.level.title }}</p>
+    <h1>{{ quiz.title }}</h1>
+
+    {# 1. Главное: процент и сдан / не сдан #}
+    <div class="result-card {% if attempt.passed %}is-passed{% else %}is-failed{% endif %}">
+        <div class="result-score">{{ attempt.score }} %</div>
+        <div class="result-text">
+            <p class="result-status">{% if attempt.passed %}Тест сдан{% else %}Тест не сдан{% endif %}</p>
+            <p>Верно {{ attempt.correct }} из {{ attempt.total }}. Порог сдачи — {{ quiz.pass_score }} %.</p>
+            {% if not attempt.passed %}
+                <p>Не хватило {{ missing }} %. Повторите уроки уровня и попробуйте ещё раз.</p>
+                {% if current.test_passed %}
+                    <p>Раньше вы уже сдали этот тест — уровень засчитан по лучшей попытке.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {# 2. Что делать дальше #}
+    <div class="result-actions">
+        {% if not attempt.passed %}
+            {# Ф-10: при неудаче — повторная попытка #}
+            <a class="btn" href="{% url 'quizzes:quiz' quiz.id %}">Пройти заново</a>
+        {% elif next_row %}
+            {# Следующий уровень открывается, когда просмотрены все уроки и тест сдан #}
+            {% if next_row.is_open %}
+                <p class="result-next">Уровень «{{ next_row.level.title }}» открыт!</p>
+                {% if next_row.first_lesson %}
+                    <a class="btn" href="{% url 'courses:lesson' next_row.first_lesson.pk %}">Перейти к следующему уровню</a>
+                {% endif %}
+            {% else %}
+                <p class="result-next">Тест сдан. Чтобы открыть уровень «{{ next_row.level.title }}», досмотрите все уроки этого уровня:
+                    просмотрено {{ current.lessons_watched }} из {{ current.lessons_total }}.</p>
+                <a class="btn" href="{% url 'courses:course_detail' course.pk %}">К программе курса</a>
+            {% endif %}
+        {% else %}
+            {# Это был последний уровень курса #}
+            {% if progress.is_completed %}
+                <p class="result-next">Это был последний уровень — курс пройден!</p>
+            {% else %}
+                <p class="result-next">Тест последнего уровня сдан. Чтобы завершить курс, досмотрите все уроки.</p>
+            {% endif %}
+            <a class="btn" href="{% url 'progress:my_progress' %}">Мой прогресс</a>
+        {% endif %}
+        <a class="link" href="{% url 'courses:course_detail' course.pk %}">Вернуться к курсу</a>
+    </div>
+
+    {# 3. История попыток по этому тесту #}
+    <h2>Мои попытки</h2>
+    <div class="table-box">
+        <table class="history">
+            <thead>
+                <tr><th>Дата</th><th>Верно</th><th>Результат</th><th>Статус</th></tr>
+            </thead>
+            <tbody>
+                {% for item in history %}
+                    <tr {% if item.pk == attempt.pk %}class="current"{% endif %}>
+                        <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ item.correct }} из {{ item.total }}</td>
+                        <td>{{ item.score }} %</td>
+                        <td>{% if item.passed %}Сдан{% else %}Не сдан{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

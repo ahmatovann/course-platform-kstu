@@ -27,3 +27,78 @@
     color: #fff;
     cursor: pointer;
 }
+
+/* Ф-10 (Нургуль). Экран результата теста */
+.best-result {
+    padding: 12px 16px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+}
+.result-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    margin: 24px 0;
+    padding: 24px;
+    border: 2px solid var(--ink, #121212);
+    box-shadow: 6px 6px 0 var(--ink, #121212);
+}
+.result-card.is-passed {
+    background: var(--mint, #e6f4ea);
+}
+.result-card.is-failed {
+    background: var(--coral, #fdecea);
+}
+.result-score {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+}
+.result-text p {
+    margin: 4px 0;
+}
+.result-status {
+    font-size: 24px;
+    font-weight: 800;
+}
+.result-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.result-next {
+    width: 100%;
+    margin: 0;
+    font-weight: 700;
+}
+.btn {
+    min-height: 44px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Таблицы с попытками и прогрессом: на телефоне прокручиваются вбок */
+.table-box {
+    overflow-x: auto;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+}
+.history {
+    width: 100%;
+    border-collapse: collapse;
+}
+.history th, .history td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--ink, #121212);
+    text-align: left;
+    white-space: nowrap;
+}
+.history tr.current {
+    background: var(--yellow, #fff3c4);
+    color: #121212;
+    font-weight: 700;
+}
