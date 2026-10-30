@@ -1,0 +1,66 @@
+/* Ответственная: Нургуль (Ф-14) */
+/* Ф-14. «Мой прогресс»: карточка курса, полоса процента, таблица уровней */
+.progress-course {
+    margin-bottom: 32px;
+    padding: 24px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    box-shadow: 6px 6px 0 var(--ink, #121212);
+}
+.progress-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+.progress-head h2 {
+    margin: 0;
+}
+.progress-head a {
+    text-decoration: none;
+}
+.progress-percent {
+    font-size: 40px;
+    font-weight: 800;
+}
+.progress-bar {
+    height: 18px;
+    margin: 16px 0 8px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--bg, #f5f6fa);
+}
+.progress-fill {
+    height: 100%;
+    background: var(--accent, #2d3a8c);
+}
+.done-label {
+    color: var(--ink, #121212);
+}
+.table-box {
+    overflow-x: auto;
+    margin-top: 16px;
+    border: 2px solid var(--ink, #121212);
+}
+.levels-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.levels-table th, .levels-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--ink, #121212);
+    text-align: left;
+    white-space: nowrap;
+}
+/* Плашки статуса уровня */
+.tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border: 2px solid #121212;
+    color: #121212;
+    font-size: 14px;
+    font-weight: 800;
+}
+.tag-done { background: #BDEBCB; }
+.tag-open { background: #FFD84D; }
+.tag-closed { background: #E4E1DA; }

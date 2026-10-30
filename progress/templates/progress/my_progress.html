@@ -1,1 +1,68 @@
 {# Ответственная: Нургуль (Ф-14) #}
+{# Ф-14. «Мой прогресс». Данные приходят из my_progress в progress/views.py, #}
+{# а считаются в progress/services.py #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}<link rel="stylesheet" href="{% static 'css/progress.css' %}">{% endblock %}
+
+{% block title %}Мой прогресс{% endblock %}
+
+{% block content %}
+<h1>Мой прогресс</h1>
+<p class="muted">Процент курса считается так: каждый просмотренный урок и каждый сданный тест — один пройденный шаг.</p>
+
+{% for item in courses %}
+    <section class="progress-course">
+        <div class="progress-head">
+            <h2><a href="{% url 'courses:course_detail' item.course.pk %}">{{ item.course.title }}</a></h2>
+            <span class="progress-percent">{{ item.percent }} %</span>
+        </div>
+
+        {# Полоса прогресса. role="progressbar" — экранный диктор прочитает процент #}
+        <div class="progress-bar" role="progressbar" aria-valuenow="{{ item.percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Прогресс курса">
+            <div class="progress-fill" style="width: {{ item.percent }}%"></div>
+        </div>
+        <p class="muted">Пройдено шагов: {{ item.done_items }} из {{ item.total_items }}
+            {% if item.is_completed %}· <b class="done-label">Курс пройден</b>{% endif %}</p>
+
+        {% if item.levels %}
+            <div class="table-box">
+                <table class="levels-table">
+                    <thead>
+                        <tr><th>Уровень</th><th>Статус</th><th>Уроки</th><th>Тест</th><th>Попыток</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in item.levels %}
+                            <tr>
+                                <td>{{ forloop.counter }}. {{ row.level.title }}</td>
+                                <td>
+                                    {% if row.is_complete %}<span class="tag tag-done">Пройден</span>
+                                    {% elif row.is_open %}<span class="tag tag-open">Открыт</span>
+                                    {% else %}<span class="tag tag-closed">Закрыт</span>{% endif %}
+                                </td>
+                                <td>{{ row.lessons_watched }} из {{ row.lessons_total }}</td>
+                                <td>
+                                    {% if not row.quiz %}
+                                        <span class="muted">нет теста</span>
+                                    {% elif row.best_score is None %}
+                                        {% if row.is_open %}<a href="{% url 'quizzes:quiz' row.quiz.pk %}">не сдавали</a>{% else %}<span class="muted">не сдавали</span>{% endif %}
+                                    {% else %}
+                                        <a href="{% url 'quizzes:result' row.last_attempt.pk %}">лучший {{ row.best_score }} %</a>
+                                        {% if row.test_passed %}— сдан{% else %}— не сдан{% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ row.attempts_count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="muted">В этом курсе пока нет уровней.</p>
+        {% endif %}
+    </section>
+{% empty %}
+    <p class="empty">Вы ещё не записались ни на один курс. <a href="{% url 'courses:catalog' %}">Перейти в каталог</a></p>
+{% endfor %}
+{% endblock %}
