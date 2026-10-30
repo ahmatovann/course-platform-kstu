@@ -1,6 +1,7 @@
 # Совместно: модель базы данных
 # Таблицы для тестов в конце уровня (Ф-9) и их результатов (Ф-10) — Нургуль
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -13,7 +14,11 @@ class Quiz(models.Model):
                                  related_name='quiz', verbose_name='Уровень')
     title = models.CharField('Название теста', max_length=200)
     # Порог сдачи в процентах. По ТЗ по умолчанию 80 %.
-    pass_score = models.PositiveSmallIntegerField('Порог сдачи, %', default=80)
+    # validators — админ не сможет поставить порог 0 % или больше 100 %.
+    pass_score = models.PositiveSmallIntegerField(
+        'Порог сдачи, %', default=80,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+    )
 
     def __str__(self):
         return self.title
@@ -55,6 +60,10 @@ class Attempt(models.Model):
                              related_name='attempts', verbose_name='Пользователь')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE,
                              related_name='attempts', verbose_name='Тест')
+    # Ф-10. Сколько ответов верных и сколько было вопросов — для экрана
+    # результата «верно 2 из 3». default=0 — для старых попыток в базе.
+    correct = models.PositiveSmallIntegerField('Верных ответов', default=0)
+    total = models.PositiveSmallIntegerField('Всего вопросов', default=0)
     # Процент правильных ответов (0–100), считается на сервере.
     score = models.PositiveSmallIntegerField('Результат, %')
     # Сдан ли тест: score >= quiz.pass_score.
