@@ -1,6 +1,9 @@
-# Ответственная: Нургуль (Ф-13, доп. функция п. 4.1.3)
+# Ответственная: Нургуль (Ф-1, Ф-13, доп. функция п. 4.1.3)
 # Письма пользователю. Отдельный файл, чтобы views.py только принимал
 # запрос и отдавал страницу, а «как отправить письмо» жило здесь.
+import secrets
+import string
+
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -35,3 +38,38 @@ def send_password_changed_email(request, user):
         recipient_list=[user.email],
         fail_silently=True,
     )
+
+
+# Ф-1. Пароль для нового пользователя.
+# secrets — модуль Python для случайных значений, которые нельзя угадать.
+# 10 символов из латинских букв и цифр.
+def make_password():
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(10))
+
+
+# Ф-1. Письмо «Для вас создан аккаунт» с логином и паролем.
+# Вызывается из админки (accounts/admin.py), когда администратор создаёт
+# пользователя. Возвращает True, если письмо ушло, и False, если нет.
+def send_account_email(request, user, password):
+    # 1. Данные для текста письма: имя, логин, пароль и адрес страницы входа
+    context = {
+        'user': user,
+        'password': password,
+        'login_url': request.build_absolute_uri(reverse('login')),
+    }
+    # 2. Текст письма из шаблона accounts/email/account_created.txt
+    message = render_to_string('accounts/email/account_created.txt', context)
+    # 3. Отправляем. fail_silently=False — при ошибке Django сообщит о ней,
+    #    чтобы админка могла показать предупреждение (см. accounts/admin.py).
+    try:
+        send_mail(
+            subject='Course Platform: для вас создан аккаунт',
+            message=message,
+            from_email=None,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception:
+        return False
+    return True

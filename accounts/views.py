@@ -1,45 +1,42 @@
 # Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13)
 from django.contrib import messages
-from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from .emails import send_password_changed_email
-from .forms import ProfileForm, RegisterForm
+from .forms import ProfileForm
 
-# Ф-1 Регистрация — Нургуль
+# Ф-1 Получение доступа (аккаунт создаёт админ) — Нургуль
 # Ф-2 Вход и выход — Нургуль
 # Ф-3 Восстановление пароля — Нургуль
 # Ф-13 Профиль — Нургуль
 
 
-# Ф-1. Регистрация: создание учётной записи по имени, почте и паролю
-def register(request):
-    # Уже вошедшему пользователю регистрация не нужна — отправляем в каталог
-    if request.user.is_authenticated:
-        return redirect('/')
-
-    if request.method == 'POST':
-        # 1. Человек нажал «Зарегистрироваться» — заполняем форму его данными
-        form = RegisterForm(request.POST)
-        # 2. is_valid() проверяет: почта не занята, пароли совпадают, пароль надёжный
-        if form.is_valid():
-            # 3. Сохраняем пользователя в базу (пароль — в виде хеша)
-            user = form.save()
-            # 4. Сразу входим под новым аккаунтом и отправляем в каталог
-            login(request, user)
-            return redirect('/')
-    else:
-        # Человек просто открыл страницу — показываем пустую форму
-        form = RegisterForm()
-
-    # Если были ошибки, форма покажется снова уже с сообщениями об ошибках
-    return render(request, 'accounts/register.html', {'form': form})
+# Ф-1. Самостоятельной регистрации нет (по ТЗ): аккаунт создаёт
+# администратор в админке, логин и пароль приходят на почту.
+# Код этого — в accounts/admin.py и accounts/emails.py.
 
 
-# Ф-2 (вход и выход) и Ф-3 (восстановление пароля) сделаны на готовых
+# Ф-2. Вход. Берём готовый класс Django LoginView (он сам проверяет почту
+# и пароль и запускает сессию) и меняем только одно — куда попасть после входа.
+class LoginView(auth_views.LoginView):
+    template_name = 'accounts/login.html'
+    redirect_authenticated_user = True
+
+    def get_default_redirect_url(self):
+        # is_staff — у администратора True, у обычного пользователя False.
+        # По ТЗ (Э1) администратор попадает в панель администратора,
+        # обучающийся — в раздел «Мои курсы».
+        if self.request.user.is_staff:
+            return '/admin/'
+        return reverse('courses:my_courses')
+
+
+# Ф-2 (выход) и Ф-3 (восстановление пароля) сделаны на готовых
 # классах Django — они подключены в accounts/urls.py.
 
 

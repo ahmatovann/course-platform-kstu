@@ -1,0 +1,14 @@
+{# Ответственная: Нургуль. Ф-1. Письмо с логином и паролем (accounts/emails.py, send_account_email) #}{% autoescape off %}Здравствуйте, {{ user.first_name|default:user.email }}!
+
+Администратор создал для вас аккаунт на Course Platform — платформе онлайн-курсов.
+
+Логин: {{ user.email }}
+Пароль: {{ password }}
+
+Войти: {{ login_url }}
+
+После входа пароль можно сменить в разделе «Профиль».
+Никому не сообщайте свой пароль.
+
+Команда Course Platform
+{% endautoescape %}

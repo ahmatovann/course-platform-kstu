@@ -1,20 +1,16 @@
 # Ответственная: Нургуль (Ф-1, Ф-2, Ф-3, Ф-13)
-# Адреса для входа, регистрации и восстановления пароля: /accounts/...
+# Адреса для входа и восстановления пароля: /accounts/...
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    # Ф-1. Регистрация — своя функция register в accounts/views.py
-    path('register/', views.register, name='register'),
+    # Ф-1. Регистрации нет: аккаунт создаёт администратор (accounts/admin.py)
 
-    # Ф-2. Вход и выход — готовые классы Django, указываем только свой шаблон.
-    # LoginView сам проверяет почту и пароль и запускает сессию.
-    path('login/', auth_views.LoginView.as_view(
-        template_name='accounts/login.html',
-        redirect_authenticated_user=True,
-    ), name='login'),
+    # Ф-2. Вход — свой класс LoginView из accounts/views.py:
+    # после входа админ попадает в панель администратора, обучающийся — в «Мои курсы».
+    path('login/', views.LoginView.as_view(), name='login'),
     # LogoutView завершает сессию. Работает только по POST (кнопка-форма).
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
