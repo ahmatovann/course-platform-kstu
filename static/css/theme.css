@@ -1,0 +1,388 @@
+/* Совместно: тема оформления «Необрутализм» (светлая и тёмная, п. 4.5 ТЗ) */
+/* Этот файл подключается в templates/base.html ПОСЛЕДНИМ, поэтому его правила
+   перекрывают цвета и рамки из style.css и из файлов страниц (catalog.css,
+   course.css, lesson.css, profile.css, quiz.css). Сами эти файлы не меняются.
+   Признаки стиля: толстые чёрные рамки, жёсткая тень без размытия,
+   яркие плашки, один шрифт Manrope. */
+
+/* 1. Цвета-переменные. var(--ink) и т. д. используются ниже по всему файлу.
+      Чтобы поменять цвет на всём сайте, достаточно поменять его здесь. */
+:root {
+    --bg: #F6F2E9;        /* фон страницы — тёплая бумага */
+    --card: #FFFFFF;      /* фон карточек и форм */
+    --ink: #121212;       /* текст, рамки и тени */
+    --muted: #4D4A44;     /* второстепенный текст */
+    --accent: #2533D9;    /* кнопки, прогресс */
+    --on-accent: #FFFFFF; /* текст на кнопках */
+    --yellow: #FFD84D;    /* плашки, выделение */
+    --mint: #BDEBCB;      /* успешные сообщения */
+    --coral: #FFB4A2;     /* сообщения об ошибке */
+    --error: #B3261E;     /* текст ошибок */
+    --line: 2px solid var(--ink);
+    --shadow: 4px 4px 0 var(--ink);
+    --shadow-big: 6px 6px 0 var(--ink);
+}
+
+/* 2. Тёмная тема. Включается сама, если в системе тёмный режим,
+      или кнопкой ◐ в шапке (атрибут data-theme ставит скрипт в base.html). */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #17161A;
+        --card: #232228;
+        --ink: #F6F2E9;
+        --muted: #C4C0B8;
+        --accent: #8C95FF;
+        --on-accent: #121212;
+        --mint: #2E5B3E;
+        --coral: #6B2E25;
+        --error: #FF9C8A;
+    }
+}
+:root[data-theme="dark"] {
+    --bg: #17161A;
+    --card: #232228;
+    --ink: #F6F2E9;
+    --muted: #C4C0B8;
+    --accent: #8C95FF;
+    --on-accent: #121212;
+    --mint: #2E5B3E;
+    --coral: #6B2E25;
+    --error: #FF9C8A;
+}
+
+/* 3. Основа страницы */
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', Arial, sans-serif;
+    font-weight: 500;
+}
+h1, h2, h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink) !important;
+}
+a {
+    color: var(--ink);
+}
+.muted, .empty, .lead, .about, .hero-text, .lesson-text,
+.course-body p, .course-meta, .stats span, .level-head small,
+.search-reset, .crumbs a, .form-box .helptext {
+    color: var(--muted) !important;
+}
+.error, .errorlist {
+    color: var(--error);
+    font-weight: 700;
+}
+
+/* 4. Шапка: белая полоса с чёрной рамкой снизу, текущий пункт — жёлтая плашка */
+.header {
+    flex-wrap: wrap;
+    gap: 12px;
+    background: var(--card);
+    border-bottom: var(--line);
+}
+.header a, .user-email {
+    color: var(--ink);
+    font-weight: 700;
+}
+.logo {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 4px;
+}
+.menu a {
+    margin-left: 12px;
+    padding: 4px 8px;
+}
+.menu a:hover {
+    background: var(--yellow);
+    color: #121212;
+}
+.logout button, .theme-toggle {
+    min-height: 36px;
+    padding: 4px 12px;
+    border: var(--line);
+    border-radius: 0;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+    box-shadow: 3px 3px 0 var(--ink);
+    cursor: pointer;
+}
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    margin-left: 12px;
+}
+
+/* 5. Кнопки: заливка, рамка и жёсткая тень. При нажатии кнопка «вдавливается» */
+.btn, .btn-big, .form-box button, .search button, .quiz button {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-family: inherit;
+    font-weight: 800;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn:hover, .btn-big:hover, .form-box button:hover, .search button:hover, .quiz button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-big);
+}
+.btn:active, .btn-big:active, .form-box button:active, .search button:active, .quiz button:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+/* 6. Карточки, формы, панели — белый фон, рамка, тень */
+.form-box, .question, .program, .material, .course-card {
+    background: var(--card);
+    border: var(--line);
+    border-radius: 0;
+    box-shadow: var(--shadow-big);
+}
+.course-card {
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+a.course-card:hover {
+    border-color: var(--ink);
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--ink);
+}
+
+/* 7. Поля ввода */
+input, select, textarea,
+.form-box input, .search input {
+    border: var(--line) !important;
+    border-radius: 0 !important;
+    background: var(--card);
+    color: var(--ink);
+    font-family: inherit;
+}
+input:focus, select:focus, textarea:focus {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+}
+.form-box input[type="checkbox"], .answer input {
+    accent-color: var(--accent);
+}
+
+/* 8. Сообщения вверху страницы */
+.message {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--mint);
+    color: var(--ink);
+    font-weight: 700;
+    box-shadow: var(--shadow);
+}
+.message-error, .message-warning {
+    background: var(--coral);
+    color: var(--ink);
+}
+
+/* 9. Плашки и бейджи */
+.badge {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--mint);
+    color: var(--ink);
+    font-weight: 800;
+}
+.level-num {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--yellow);
+    color: #121212;
+    font-weight: 800;
+}
+.program-level::before {
+    background: var(--ink);
+}
+.program li a {
+    color: var(--ink);
+}
+.program li.current {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--yellow);
+}
+.program li.current a {
+    color: #121212;
+}
+.dot, .square {
+    border-color: var(--ink);
+}
+.program li.current .dot {
+    border-color: #121212;
+    background: var(--accent);
+}
+
+/* 10. Обложки курсов и видео */
+.cover, .no-video {
+    border-radius: 0;
+    background: var(--yellow);
+    color: #121212 !important;
+}
+.course-card .cover {
+    border-bottom: var(--line);
+}
+.course-hero .cover, .no-video {
+    border: var(--line);
+    border-radius: 0;
+    box-shadow: var(--shadow-big);
+}
+.cover-letter {
+    font-weight: 800;
+    color: #121212;
+}
+.cover svg path {
+    stroke: #121212;
+}
+.cover svg circle {
+    fill: var(--card);
+    stroke: #121212;
+}
+.cover svg circle:last-child {
+    fill: var(--accent);
+    stroke: #121212;
+}
+.lesson-video {
+    border: var(--line);
+    border-radius: 0;
+    box-shadow: var(--shadow-big);
+}
+
+/* 11. Профиль: квадратный аватар в рамке */
+.avatar {
+    border: var(--line);
+    border-radius: 0;
+    background: var(--yellow);
+    color: #121212;
+    font-weight: 800;
+    box-shadow: var(--shadow);
+}
+
+/* 12. Тест: выбранный ответ подсвечивается жёлтым */
+.answer {
+    margin: 6px 0;
+    padding: 10px 12px;
+    border: var(--line);
+}
+.answer:has(input:checked) {
+    background: var(--yellow);
+    color: #121212;
+    box-shadow: var(--shadow);
+}
+
+/* 13. Каталог: крупный заголовок */
+.hero h1 {
+    font-size: 56px;
+    line-height: 1;
+}
+@media (max-width: 600px) {
+    .hero h1 {
+        font-size: 36px;
+    }
+    .menu a {
+        margin-left: 0;
+    }
+}
+
+/* 14. Подписи полей в формах */
+.form-box label {
+    display: inline-block;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+/* 15. Картинка на обложке курса.
+       Файл лежит в static/img/course-cover.jpg. Путь ../img/ — потому что
+       этот CSS лежит в static/css/, а картинка — в соседней папке static/img/.
+       Рисунок-«дорожку» (SVG) прячем, букву курса показываем жёлтой плашкой.
+       Если картинки нет, останется жёлтый фон — сайт не сломается. */
+.cover {
+    background: var(--yellow) url('../img/course-cover.jpg') center / cover no-repeat;
+}
+.cover svg {
+    display: none;
+}
+.cover-letter {
+    top: 12px;
+    left: 12px;
+    padding: 2px 12px;
+    border: var(--line);
+    background: var(--yellow);
+    box-shadow: 3px 3px 0 #121212;
+    font-size: 20px;
+}
+
+/* 16. Аватар (Ф-13): автоматический пиксель-арт и маленький аватар в шапке */
+.avatar svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.avatar-hint {
+    text-align: center;
+    font-size: 14px;
+}
+.header-avatar {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    margin-left: 12px;
+    padding: 0 !important;
+    overflow: hidden;
+    border: var(--line);
+    box-shadow: 3px 3px 0 var(--ink);
+}
+.header-avatar img, .header-avatar svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.header-avatar:hover {
+    background: transparent !important;
+}
+
+/* 17. Пустая страница («Мои курсы» без курсов, поиск без результатов):
+       картинка static/img/empty.jpg, которая слегка «парит».
+       Если картинки нет — блок просто жёлтый. */
+p.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 17px;
+}
+p.empty::before {
+    content: "";
+    width: 240px;
+    height: 240px;
+    margin-bottom: 16px;
+    border: var(--line);
+    box-shadow: var(--shadow-big);
+    background: var(--yellow) url('../img/empty.jpg') center / cover no-repeat;
+    image-rendering: pixelated;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+/* Кто отключил анимации в системе — картинка стоит на месте */
+@media (prefers-reduced-motion: reduce) {
+    p.empty::before { animation: none; }
+}

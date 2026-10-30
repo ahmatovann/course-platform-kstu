@@ -12,6 +12,19 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {# Совместно: сюда страница может подключить свой CSS-файл #}
     {% block styles %}{% endblock %}
+    {# Совместно: тема «Необрутализм» — шрифт Manrope и файл theme.css #}
+    {# theme.css подключён последним, чтобы его правила перекрывали остальные #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    {# Совместно: светлая/тёмная тема (п. 4.5 ТЗ). Выбор хранится в браузере (localStorage) #}
+    {# и ставится сразу, чтобы страница не «мигала» при загрузке #}
+    <script>
+        try {
+            var savedTheme = localStorage.getItem('theme');
+            if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch (e) {}
+    </script>
 </head>
 <body>
     {# Шапка сайта: логотип и меню #}
@@ -28,6 +41,10 @@
             {% if user.is_authenticated %}
                 {# Ф-13 (Нургуль): личный кабинет #}
                 <a href="{% url 'profile' %}">Профиль</a>
+                {# Ф-13 (Нургуль): маленький аватар в шапке — свой или автоматический #}
+                <a class="header-avatar" href="{% url 'profile' %}" aria-label="Профиль">
+                    {% if user.avatar %}<img src="{{ user.avatar.url }}" alt="">{% else %}{{ user.generated_avatar }}{% endif %}
+                </a>
                 <span class="user-email">{{ user.email }}</span>
                 {# Выход только через POST-запрос, поэтому это форма с кнопкой #}
                 <form class="logout" method="post" action="{% url 'logout' %}">
@@ -37,6 +54,10 @@
             {% else %}
                 <a href="{% url 'login' %}">Вход</a>
             {% endif %}
+            {# Совместно: кнопка переключения светлой и тёмной темы #}
+            <button type="button" class="theme-toggle" aria-label="Сменить тему: светлая или тёмная" onclick="toggleTheme()">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>
+            </button>
         </nav>
     </header>
 
@@ -50,5 +71,16 @@
         {% endif %}
         {% block content %}{% endblock %}
     </main>
+    {# Совместно: переключение темы. Если тема ещё не выбрана — берём системную. #}
+    <script>
+        function toggleTheme() {
+            var root = document.documentElement;
+            var current = root.getAttribute('data-theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+        }
+    </script>
 </body>
 </html>

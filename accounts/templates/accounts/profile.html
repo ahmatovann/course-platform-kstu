@@ -13,14 +13,18 @@
 <div class="form-box profile">
     <h1>Профиль</h1>
 
-    {# Аватар: если загружен — картинка, если нет — первая буква имени #}
+    {# Аватар: если загружен — картинка, если нет — автоматический пиксель-арт #}
+    {# (рисуется по почте в accounts/avatars.py, у каждого свой) #}
     <div class="avatar">
         {% if user.avatar %}
             <img src="{{ user.avatar.url }}" alt="Аватар">
         {% else %}
-            <span>{{ user.first_name|default:user.email|first|upper }}</span>
+            {{ user.generated_avatar }}
         {% endif %}
     </div>
+    {% if not user.avatar %}
+        <p class="muted avatar-hint">Это автоматический аватар. Можно загрузить свою картинку ниже.</p>
+    {% endif %}
 
     {# Почту показываем, но не меняем: по ней человек входит на сайт #}
     <p><b>Почта:</b> {{ user.email }}</p>
