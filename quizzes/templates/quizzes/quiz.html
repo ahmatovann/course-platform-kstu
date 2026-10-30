@@ -15,6 +15,20 @@
     <h1>{{ quiz.title }}</h1>
     <p class="muted">Для сдачи нужно не меньше {{ quiz.pass_score }} % правильных ответов.</p>
 
+    {# Администратор тест не проходит (п. 4.1.4 ТЗ) — только смотрит #}
+    {% if is_admin_preview %}
+        <div class="message message-warning">Режим просмотра администратора: так тест видит ученик. Ответы не сохраняются.</div>
+    {% endif %}
+
+    {# Ф-10. Если тест уже проходили — показываем лучший результат #}
+    {% if best_attempt %}
+        <p class="best-result">
+            Ваш лучший результат: <b>{{ best_attempt.score }} %</b>
+            {% if best_attempt.passed %}— тест сдан. Можно пройти ещё раз.{% else %}— пока не сдан.{% endif %}
+            <a href="{% url 'quizzes:result' best_attempt.id %}">Подробнее</a>
+        </p>
+    {% endif %}
+
     <form method="post">
         {% csrf_token %}
         {% for question in questions %}

@@ -8,8 +8,10 @@
 # chosen  — словарь {id вопроса: id выбранного ответа}, пришёл из формы
 # Возвращает: сколько верных, сколько всего вопросов и процент.
 def check_answers(quiz, chosen):
-    questions = quiz.questions.all()
-    total = questions.count()
+    # Считаем только вопросы, у которых есть варианты ответа:
+    # вопрос без вариантов (админ забыл их добавить) ученику не показывается.
+    questions = quiz_questions(quiz)
+    total = len(questions)
     correct = 0
 
     for question in questions:
@@ -24,3 +26,10 @@ def check_answers(quiz, chosen):
     # Если вопросов нет — 0, чтобы не делить на ноль.
     score = round(correct * 100 / total) if total else 0
     return correct, total, score
+
+
+# Вопросы теста, которые показываются ученику: только те, у которых
+# есть хотя бы один вариант ответа. Используется и на странице теста,
+# и при проверке — чтобы число вопросов везде совпадало.
+def quiz_questions(quiz):
+    return [q for q in quiz.questions.prefetch_related('answers') if q.answers.all()]

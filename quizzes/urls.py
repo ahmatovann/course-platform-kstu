@@ -10,4 +10,6 @@ app_name = 'quizzes'
 urlpatterns = [
     # Ф-9. Тест уровня, например /quizzes/1/
     path('<int:quiz_id>/', views.quiz_view, name='quiz'),
+    # Ф-10. Результат попытки, например /quizzes/result/5/
+    path('result/<int:attempt_id>/', views.result_view, name='result'),
 ]
