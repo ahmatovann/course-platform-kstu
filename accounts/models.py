@@ -5,6 +5,9 @@ from django.db import models
 # в зашифрованном виде), first_name, last_name, is_active и др.
 # Мы наследуемся от него и добавляем только то, чего не хватает по ТЗ.
 from django.contrib.auth.models import AbstractUser
+from django.utils.safestring import mark_safe
+
+from .avatars import pixel_avatar_svg
 
 
 # Ф-1, Ф-2, Ф-13. Пользователь платформы — Нургуль
@@ -26,6 +29,12 @@ class User(AbstractUser):
     # Какие поля ещё спросить при создании администратора
     # командой createsuperuser (почта и пароль спрашиваются всегда).
     REQUIRED_FIELDS = ['username']
+
+    # Ф-13. Автоматический аватар (пиксель-арт), если свой не загружен.
+    # В шаблоне: {{ user.generated_avatar }}. mark_safe — разрешаем Django
+    # вставить SVG как картинку, а не как текст (SVG рисуем мы сами, а не человек).
+    def generated_avatar(self):
+        return mark_safe(pixel_avatar_svg(self.email or self.username))
 
     def __str__(self):
         # Как пользователь отображается в админке и списках — по почте.
