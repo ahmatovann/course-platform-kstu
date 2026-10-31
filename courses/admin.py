@@ -4,7 +4,7 @@
 # Своя панель администратора (А-1 – А-6) будет на этапе Э5.
 from django.contrib import admin
 
-from .models import Course, Enrollment, Lesson, Level, Material
+from .models import Certificate, Course, Enrollment, Lesson, LessonProgress, Level, Material
 
 
 # Inline — уровни редактируются прямо на странице курса
@@ -54,3 +54,24 @@ class LessonAdmin(admin.ModelAdmin):
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ('user', 'course', 'enrolled_at')
+
+
+# Ф-8 (Э4). Просмотры уроков — администратор видит, кто что посмотрел
+@admin.register(LessonProgress)
+class LessonProgressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'lesson', 'watched_at')
+    list_filter = ('lesson__level__course',)
+
+
+# Ф-12 (Э4). Выданные сертификаты — только просмотр, подделать нельзя:
+# сертификат выдаёт сам сайт, когда курс пройден полностью
+@admin.register(Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    list_display = ('number', 'user', 'course', 'issued_at')
+    search_fields = ('number', 'user__email')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
