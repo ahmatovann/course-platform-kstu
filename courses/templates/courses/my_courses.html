@@ -1,4 +1,4 @@
-{# Ответственная: Фатима (Ф-6) #}
+{# Ответственная: Фатима (Ф-6, Ф-12) #}
 {# Ф-6. «Мои курсы»: курсы, на которые записан пользователь #}
 {# Данные приходят из функции my_courses в courses/views.py #}
 {% extends 'base.html' %}
@@ -18,7 +18,11 @@
             <div class="course-body">
                 <h2>{{ enrollment.course.title }}</h2>
                 {# |date:"d.m.Y" — дата записи в виде 25.10.2026 #}
-                <p class="course-meta">Записаны {{ enrollment.enrolled_at|date:"d.m.Y" }}</p>
+                <p class="course-meta">Записаны {{ enrollment.enrolled_at|date:"d.m.Y" }} · пройдено {{ enrollment.progress.percent }} %</p>
+                {# Ф-12 (Э4). Пройденный курс — отметка «Курс пройден» #}
+                {% if enrollment.certificate %}
+                    <p class="done-tag">✓ Курс пройден · сертификат № {{ enrollment.certificate.number }}</p>
+                {% endif %}
             </div>
         </a>
     {% empty %}

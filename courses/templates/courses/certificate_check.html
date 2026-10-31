@@ -1,0 +1,32 @@
+{# Ответственная: Фатима (Ф-12) — этап Э4 #}
+{# Проверка подлинности сертификата по номеру. Доступна всем, даже без входа #}
+{# (таблица ролей ТЗ: «Гость — … проверка сертификата») #}
+{% extends 'base.html' %}
+
+{% block title %}Проверка сертификата{% endblock %}
+
+{% block content %}
+<div class="form-box">
+    <h1>Проверка сертификата</h1>
+    {# method="get" — номер попадает в адрес, такой ссылкой можно поделиться #}
+    <form method="get">
+        <p>
+            <label for="number">Номер сертификата</label>
+            <input id="number" name="number" value="{{ number }}" placeholder="CP-1A2B3C4D" required>
+        </p>
+        <button type="submit">Проверить</button>
+    </form>
+
+    {% if number %}
+        {% if certificate %}
+            <div class="message">
+                Сертификат № {{ certificate.number }} действителен.<br>
+                Выдан: {{ certificate.user.first_name|default:"обучающемуся" }},
+                курс «{{ certificate.course.title }}», {{ certificate.issued_at|date:"d.m.Y" }}.
+            </div>
+        {% else %}
+            <div class="message message-error">Сертификат с номером {{ number }} не найден.</div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

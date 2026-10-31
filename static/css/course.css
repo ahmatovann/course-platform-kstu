@@ -168,3 +168,31 @@
         order: -1;
     }
 }
+
+/* Ф-11 (Э4, Фатима). Закрытый уровень в «Программе» — бледный */
+.program-level.is-locked {
+    opacity: 0.55;
+}
+/* Ф-8 (Э4). Просмотренный урок / сданный тест — закрашенный значок */
+.program li.watched .dot,
+.program li.watched .square {
+    background: var(--accent, #2d3a8c);
+    border-color: var(--accent, #2d3a8c);
+}
+/* Ф-12 (Э4). Блок «Курс пройден» на странице курса */
+.course-done {
+    margin: 16px 0;
+    padding: 16px 20px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--mint, #e6f4ea);
+    color: var(--ink, #121212);
+}
+.course-done-title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+}
+.done-tag {
+    margin: 4px 0 0;
+    font-weight: 700;
+}

@@ -1,1 +1,26 @@
-{# Ответственная: Фатима (Ф-4 – Ф-8, Ф-11, Ф-12) #}
+{# Ответственная: Фатима (Ф-12) — этап Э4 #}
+{# Ф-12. Сертификат о прохождении курса. Данные — из certificate_view в courses/views.py #}
+{# Кнопка «Распечатать» открывает печать браузера: оттуда можно сохранить в PDF #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}<link rel="stylesheet" href="{% static 'css/certificate.css' %}">{% endblock %}
+
+{% block title %}Сертификат {{ certificate.number }}{% endblock %}
+
+{% block content %}
+<div class="certificate">
+    <p class="certificate-label">Course Platform</p>
+    <h1>Сертификат</h1>
+    <p>подтверждает, что</p>
+    <p class="certificate-name">{{ certificate.user.first_name|default:certificate.user.email }}</p>
+    <p>успешно прошёл(а) курс</p>
+    <p class="certificate-course">«{{ certificate.course.title }}»</p>
+    <div class="certificate-footer">
+        <span>Дата выдачи: {{ certificate.issued_at|date:"d.m.Y" }}</span>
+        <span>№ {{ certificate.number }}</span>
+    </div>
+    <p class="certificate-check">Проверить подлинность: {{ request.scheme }}://{{ request.get_host }}{% url 'courses:certificate_check' %}?number={{ certificate.number }}</p>
+</div>
+<p class="no-print"><button class="btn" type="button" onclick="window.print()">Распечатать или сохранить в PDF</button></p>
+{% endblock %}
