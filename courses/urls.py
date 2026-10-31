@@ -17,4 +17,9 @@ urlpatterns = [
     path('my-courses/', views.my_courses, name='my_courses'),
     # Ф-7. Страница урока, например /lesson/3/
     path('lesson/<int:pk>/', views.lesson_view, name='lesson'),
+    # Ф-8 (Э4). Отметка «урок просмотрен» (POST от скрипта или кнопки)
+    path('lesson/<int:pk>/watched/', views.lesson_watched, name='lesson_watched'),
+    # Ф-12 (Э4). Проверка сертификата по номеру (для всех) и сам сертификат
+    path('certificate/check/', views.certificate_check, name='certificate_check'),
+    path('certificate/<str:number>/', views.certificate_view, name='certificate'),
 ]

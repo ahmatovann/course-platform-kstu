@@ -60,3 +60,16 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Ф-8 (Э4, Фатима). Статус урока и кнопка «дальше» под видео */
+.lesson-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+}
+.lesson-status p,
+.lesson-status form {
+    margin: 0;
+}

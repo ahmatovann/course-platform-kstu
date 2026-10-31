@@ -1,0 +1,57 @@
+/* Ответственная: Фатима (Ф-12) — этап Э4 */
+/* Ф-12. Сертификат: рамка, крупное имя и название курса, печать без меню сайта */
+.certificate {
+    max-width: 760px;
+    margin: 0 auto 24px;
+    padding: 48px 40px;
+    border: 6px double var(--ink, #121212);
+    background: var(--card, #fff);
+    text-align: center;
+}
+.certificate-label {
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.certificate h1 {
+    margin: 8px 0 24px;
+    font-size: 48px;
+}
+.certificate-name {
+    margin: 12px 0;
+    font-size: 36px;
+    font-weight: 800;
+}
+.certificate-course {
+    margin: 12px 0 32px;
+    font-size: 24px;
+    font-weight: 700;
+}
+.certificate-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 2px solid var(--ink, #121212);
+    font-weight: 700;
+}
+.certificate-check {
+    margin-top: 16px;
+    font-size: 13px;
+    word-break: break-all;
+}
+.no-print {
+    text-align: center;
+}
+/* При печати прячем шапку сайта и кнопку — остаётся только сертификат */
+@media print {
+    .header, .no-print, .message { display: none !important; }
+    body { background: #fff !important; }
+}
+@media (max-width: 600px) {
+    .certificate { padding: 28px 16px; }
+    .certificate h1 { font-size: 34px; }
+    .certificate-name { font-size: 26px; }
+}

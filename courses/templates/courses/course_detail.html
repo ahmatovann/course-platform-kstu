@@ -1,4 +1,4 @@
-{# Ответственная: Фатима (Ф-5, Ф-6, Ф-7) #}
+{# Ответственная: Фатима (Ф-5, Ф-6, Ф-7, Ф-11, Ф-12) #}
 {# Ф-5. Карточка курса: описание, уровни и уроки. Ф-6. Кнопка «Записаться» #}
 {# Данные приходят из функции course_detail в courses/views.py #}
 {% extends 'base.html' %}
@@ -26,8 +26,23 @@
         </div>
 
         {# Ф-6. Запись на курс #}
-        {% if is_enrolled %}
-            <p class="badge">✓ Вы записаны на этот курс</p>
+        {% if is_admin_preview %}
+            {# Администратор курсы не проходит (п. 4.1.4 ТЗ) — только смотрит #}
+            <p class="badge">Режим просмотра администратора</p>
+            {% if first_lesson %}
+                <p><a class="btn-big" href="{% url 'courses:lesson' first_lesson.pk %}">Посмотреть уроки</a></p>
+            {% endif %}
+        {% elif is_enrolled %}
+            {# Ф-12 (Э4). Курс пройден — отметка и сертификат #}
+            {% if certificate %}
+                <div class="course-done">
+                    <p class="course-done-title">Курс пройден!</p>
+                    <p>Сертификат № {{ certificate.number }} от {{ certificate.issued_at|date:"d.m.Y" }}</p>
+                    <a class="btn-big" href="{% url 'courses:certificate' certificate.number %}">Открыть сертификат</a>
+                </div>
+            {% else %}
+                <p class="badge">✓ Вы записаны на этот курс · пройдено {{ progress.percent }} %</p>
+            {% endif %}
             {# Ф-7. Кнопка сразу на первый урок курса #}
             {% if first_lesson %}
                 <p><a class="btn-big" href="{% url 'courses:lesson' first_lesson.pk %}">Начать первый урок</a></p>

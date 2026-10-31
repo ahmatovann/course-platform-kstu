@@ -1,4 +1,4 @@
-{# Ответственная: Фатима (Ф-7) #}
+{# Ответственная: Фатима (Ф-7, Ф-8, Ф-11) #}
 {# Ф-7. Урок: видео, текстовое описание и файлы материалов #}
 {# Данные приходят из функции lesson_view в courses/views.py #}
 {% extends 'base.html' %}
@@ -19,12 +19,43 @@
         </p>
         <h1>{{ lesson.title }}</h1>
 
+        {# Администратор смотрит урок так, как его видит ученик (п. 4.1.4 ТЗ) #}
+        {% if is_admin_preview %}
+            <div class="message message-warning">Режим просмотра администратора: отметки о просмотре не сохраняются.</div>
+        {% endif %}
+
         {# Видео урока. controls — кнопки «пуск», «пауза», громкость #}
+        {# Ф-8 (Э4). data-watched-url — куда static/js/lesson.js отправит отметку, #}
+        {# когда человек реально посмотрит 90 % видео #}
         {% if lesson.video %}
-            <video class="lesson-video" controls src="{{ lesson.video.url }}"></video>
+            <video class="lesson-video" controls src="{{ lesson.video.url }}" id="lesson-video"
+                {% if is_enrolled and not watched %}data-watched-url="{% url 'courses:lesson_watched' lesson.pk %}"{% endif %}></video>
         {% else %}
             <div class="no-video">Видео к уроку ещё не загружено</div>
         {% endif %}
+
+        {# Ф-8 (Э4). Статус урока и переход дальше #}
+        <div class="lesson-status">
+            {% if watched %}
+                <p class="badge">✓ Урок просмотрен</p>
+            {% elif is_enrolled %}
+                {# Появится сам, когда скрипт отметит урок (после 90 % видео) #}
+                <p class="badge" id="watched-badge" hidden>✓ Урок просмотрен</p>
+                {% if lesson.video %}
+                    <p class="muted" id="watched-hint">Урок отметится просмотренным, когда вы посмотрите 90 % видео.</p>
+                {% else %}
+                    {# Без видео отметить 90 % нельзя — человек отмечает урок сам #}
+                    <form method="post" action="{% url 'courses:lesson_watched' lesson.pk %}">
+                        {% csrf_token %}
+                        <button class="btn" type="submit">Отметить урок как изученный</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+            <p class="badge" id="certificate-badge" hidden>Курс пройден! <a id="certificate-link" href="#">Открыть сертификат</a></p>
+            {% if next_url %}
+                <p><a class="btn" href="{{ next_url }}">{{ next_label }} →</a></p>
+            {% endif %}
+        </div>
 
         {# Текстовое описание урока #}
         <h2>Описание урока</h2>
@@ -57,4 +88,6 @@
     {# Справа — программа курса, текущий урок подсвечен (courses/_program.html) #}
     {% include 'courses/_program.html' %}
 </div>
+{# Ф-8 (Э4). Скрипт отметки после 90 % видео — static/js/lesson.js #}
+<script src="{% static 'js/lesson.js' %}"></script>
 {% endblock %}

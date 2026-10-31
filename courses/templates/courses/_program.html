@@ -1,41 +1,46 @@
-{# Ответственная: Фатима (Ф-5, Ф-7) #}
+{# Ответственная: Фатима (Ф-5, Ф-7, Ф-8, Ф-11) #}
 {# Панель «Программа»: уровни курса по порядку, в каждом — уроки и тест. #}
 {# Подключается на странице курса и на странице урока: {% include 'courses/_program.html' %} #}
-{# Ф-7. Записанным уроки — ссылки; текущий урок (переменная lesson) подсвечен #}
+{# Данные — список program из build_program() в courses/services.py: #}
+{# у каждого уровня is_open / is_complete, у каждого урока watched. #}
 <aside class="program">
     <h2>Программа</h2>
-    {% for level in levels %}
-        <div class="program-level">
-            {# Кружок с номером уровня и название #}
+    {% for item in program %}
+        {# Ф-11 (Э4). Закрытый уровень — серый, с подписью «закрыт» #}
+        <div class="program-level{% if is_enrolled and not item.is_open %} is-locked{% endif %}">
             <div class="level-head">
-                <span class="level-num">{{ level.order }}</span>
+                <span class="level-num">{% if item.is_complete %}✓{% else %}{{ item.level.order }}{% endif %}</span>
                 <div>
-                    <b>Уровень {{ level.order }}. {{ level.title }}</b>
-                    {# |length — сколько уроков в уровне #}
-                    <small>Уроков: {{ level.lessons.all|length }}</small>
+                    <b>Уровень {{ item.level.order }}. {{ item.level.title }}</b>
+                    <small>
+                        Уроков: {{ item.lessons|length }}
+                        {% if is_enrolled %}
+                            · {% if item.is_complete %}пройден{% elif item.is_open %}открыт{% else %}закрыт — сначала пройдите предыдущий уровень{% endif %}
+                        {% endif %}
+                    </small>
                 </div>
             </div>
             <ul>
-                {# item — урок в списке (имя lesson занято текущим уроком) #}
-                {% for item in level.lessons.all %}
-                    {% if is_enrolled %}
-                        {# class="current" — подсветка урока, который открыт сейчас #}
-                        <li{% if item.pk == lesson.pk %} class="current"{% endif %}>
-                            <span class="dot"></span>
-                            <a href="{% url 'courses:lesson' item.pk %}">{{ item.title }}</a>
+                {% for entry in item.lessons %}
+                    {# Ссылка на урок — только если уровень открыт (Ф-11) или это админ в режиме просмотра #}
+                    {% if is_admin_preview or is_enrolled and item.is_open %}
+                        <li class="{% if entry.lesson.pk == lesson.pk %}current{% endif %}{% if entry.watched %} watched{% endif %}">
+                            {# Ф-8 (Э4). Закрашенный кружок — урок просмотрен #}
+                            <span class="dot" {% if entry.watched %}title="Просмотрен"{% endif %}></span>
+                            <a href="{% url 'courses:lesson' entry.lesson.pk %}">{{ entry.lesson.title }}</a>
                         </li>
                     {% else %}
-                        <li><span class="dot"></span>{{ item.title }}</li>
+                        <li><span class="dot"></span>{{ entry.lesson.title }}</li>
                     {% endif %}
                 {% empty %}
                     <li class="muted">Уроков пока нет</li>
                 {% endfor %}
                 {# Тест в конце уровня (Ф-9, страница Нургуль /quizzes/<номер>/) #}
-                {% if level.quiz %}
-                    <li class="test">
+                {% if item.quiz %}
+                    <li class="test{% if item.test_passed %} watched{% endif %}">
                         <span class="square"></span>
-                        {% if is_enrolled %}
-                            <a href="/quizzes/{{ level.quiz.pk }}/">Тест уровня</a>
+                        {% if is_admin_preview or is_enrolled and item.is_open %}
+                            <a href="{% url 'quizzes:quiz' item.quiz.pk %}">Тест уровня</a>{% if item.test_passed %} — сдан{% endif %}
                         {% else %}
                             Тест уровня
                         {% endif %}
