@@ -1,5 +1,7 @@
 # Совместно: модель базы данных
 # Таблицы курсов, уровней, уроков и прохождения курса (совместная задача #1)
+import secrets
+
 from django.conf import settings
 from django.db import models
 
@@ -125,6 +127,11 @@ class Certificate(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE,
                                related_name='certificates', verbose_name='Курс')
     issued_at = models.DateTimeField('Дата выдачи', auto_now_add=True)
+    # Ф-12 (Э4). Номер сертификата, например CP-3F9A1C2B. По нему любой
+    # (даже гость) может проверить, что сертификат настоящий: /certificate/check/
+    # Номер случайный (модуль secrets), поэтому подобрать чужой нельзя.
+    number = models.CharField('Номер', max_length=20, unique=True, null=True,
+                              blank=True, editable=False)
 
     class Meta:
         verbose_name = 'сертификат'
@@ -133,6 +140,12 @@ class Certificate(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'course'], name='unique_certificate'),
         ]
+
+    # Номер ставится сам при первом сохранении сертификата
+    def save(self, *args, **kwargs):
+        if not self.number:
+            self.number = 'CP-' + secrets.token_hex(4).upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Сертификат: {self.user} — {self.course}'
