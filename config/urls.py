@@ -8,6 +8,8 @@ from django.urls import include, path
 urlpatterns = [
     # Стандартная админка Django
     path('admin/', admin.site.urls),
+    # А-1 – А-6. Панель администратора (Фатима, Э5)
+    path('panel/', include('adminpanel.urls')),
     # Ф-9, Ф-10. Тесты в конце уровня (Нургуль)
     path('quizzes/', include('quizzes.urls')),
     # Ф-14. Мой прогресс (Нургуль)
