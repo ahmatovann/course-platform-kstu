@@ -329,3 +329,24 @@ class EnrollmentByAdminTests(PanelTestBase):
         self.assertContains(self.client.get(reverse('adminpanel:user_progress', args=[self.student.pk])), 'Записать на курс')
         self.assertContains(self.client.get(reverse('adminpanel:dashboard')), 'Быстрые действия')
         self.assertContains(self.client.get(reverse('adminpanel:course_detail', args=[self.course.pk])), '+ Тест уровня')
+
+
+CONSOLE_MAIL = {'default': {'BACKEND': 'django.core.mail.backends.console.EmailBackend'}}
+
+
+class MailNotConfiguredTests(PanelTestBase):
+    # Нет файла .env — панель предупреждает и показывает пароль на экране
+    def test_dashboard_warns(self):
+        from django.test import override_settings
+        with override_settings(MAILERS=CONSOLE_MAIL):
+            self.assertContains(self.client.get(reverse('adminpanel:dashboard')), 'Почта не настроена')
+        self.assertNotContains(self.client.get(reverse('adminpanel:dashboard')), 'Почта не настроена')
+
+    def test_create_user_shows_password(self):
+        from django.test import override_settings
+        with override_settings(MAILERS=CONSOLE_MAIL), mock.patch('sys.stdout'):
+            response = self.client.post(reverse('adminpanel:user_create'),
+                                        {'email': 'new@test.kg', 'first_name': 'Азамат'}, follow=True)
+        self.assertContains(response, 'почта не настроена')
+        self.assertContains(response, 'пароль ')
+        self.assertTrue(User.objects.filter(email='new@test.kg').exists())

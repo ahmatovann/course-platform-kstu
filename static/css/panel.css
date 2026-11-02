@@ -270,3 +270,12 @@ button.danger {
 .steps li.done b::after {
     content: " ✓";
 }
+/* Предупреждение «Почта не настроена» на Обзоре */
+.panel-card-warn {
+    background: #FFE3DF;
+    color: #121212;
+    box-shadow: 4px 4px 0 var(--ink, #121212);
+}
+.panel-card-warn p {
+    margin: 6px 0 0;
+}

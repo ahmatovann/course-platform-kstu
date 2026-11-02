@@ -3,6 +3,15 @@
 {% block title %}Панель администратора{% endblock %}
 {% block panel %}
 <h1>Обзор</h1>
+{% if not mail_ok %}
+    {# Нет файла .env — письма (пароль новому пользователю, «Забыли пароль?») не уходят на почту #}
+    <section class="panel-card panel-card-warn">
+        <b>Почта не настроена — письма не уходят.</b>
+        <p>Пароли новым пользователям и ссылки «Забыли пароль?» сейчас печатаются в терминале, где запущен <code>runserver</code>.
+        Чтобы письма приходили на почту, создайте рядом с <code>manage.py</code> файл <code>.env</code> по образцу <code>.env.example</code>
+        (адрес Gmail и пароль приложения) и перезапустите сервер.</p>
+    </section>
+{% endif %}
 <div class="stat-grid">
     <a class="stat" href="{% url 'adminpanel:course_list' %}"><b>{{ stats.courses }}</b><span>курсов, из них опубликовано {{ stats.published }}</span></a>
     <div class="stat"><b>{{ stats.lessons }}</b><span>уроков</span></div>

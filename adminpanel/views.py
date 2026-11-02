@@ -5,6 +5,7 @@
 # Все страницы — по адресу /panel/… и только для администратора (staff_required).
 from functools import wraps
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -46,6 +47,15 @@ def back_to(request, default):
     return redirect(default)
 
 
+# Настроена ли настоящая почта. Если на компьютере нет файла .env с адресом
+# и паролем приложения Gmail, письма не уходят, а печатаются в терминале
+# (см. config/settings.py). Тогда панель честно предупреждает об этом
+# и показывает пароль на экране, чтобы его можно было передать человеку.
+def mail_configured():
+    backend = getattr(settings, 'MAILERS', {}).get('default', {}).get('BACKEND', '')
+    return not backend.endswith('console.EmailBackend')
+
+
 # ---------------------------------------------------------------- Обзор
 
 # Обзор: главные цифры платформы и последние попытки тестов
@@ -62,7 +72,9 @@ def dashboard(request):
         'attempts': Attempt.objects.count(),
     }
     recent = Attempt.objects.select_related('user', 'quiz__level__course')[:8]
-    return render(request, 'adminpanel/dashboard.html', {'stats': stats, 'recent': recent})
+    return render(request, 'adminpanel/dashboard.html', {
+        'stats': stats, 'recent': recent, 'mail_ok': mail_configured(),
+    })
 
 
 # ---------------------------------------------------------------- А-1. Курсы
@@ -333,7 +345,11 @@ def user_create(request):
         password = make_password()
         user.set_password(password)
         user.save()
-        if send_account_email(request, user, password):
+        if not mail_configured():
+            send_account_email(request, user, password)  # письмо уйдёт в терминал
+            messages.warning(request, f'Аккаунт создан, но почта не настроена (нет файла .env) — письмо не ушло. '
+                                      f'Передайте человеку: логин {user.email}, пароль {password}')
+        elif send_account_email(request, user, password):
             messages.success(request, f'Аккаунт создан. Логин и пароль отправлены на {user.email}.')
         else:
             messages.warning(request, f'Аккаунт создан, но письмо не отправилось. '
@@ -366,7 +382,11 @@ def user_new_password(request, pk):
     password = make_password()
     user.set_password(password)
     user.save(update_fields=['password'])
-    if send_new_password_email(request, user, password):
+    if not mail_configured():
+        send_new_password_email(request, user, password)  # письмо уйдёт в терминал
+        messages.warning(request, f'Почта не настроена (нет файла .env) — письмо не ушло. '
+                                  f'Новый пароль для {user.email}: {password}')
+    elif send_new_password_email(request, user, password):
         messages.success(request, f'Новый пароль отправлен на {user.email}.')
     else:
         messages.warning(request, f'Письмо не отправилось. Новый пароль для {user.email}: {password}')
