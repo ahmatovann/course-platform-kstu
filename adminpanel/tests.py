@@ -226,6 +226,22 @@ class UserTests(PanelTestBase):
             response = self.client.post(reverse('adminpanel:user_create'),
                                         {'email': 'f@test.kg', 'first_name': 'Ф'}, follow=True)
         self.assertContains(response, 'письмо не отправилось')
+        # пароль показан один раз с кнопкой «Скопировать» и подходит для входа
+        password = re.search(r'id="cred-password">(\S+)</code>', response.content.decode()).group(1)
+        self.assertTrue(self.client.login(username='f@test.kg', password=password))
+
+    def test_credentials_shown_once_with_copy(self):
+        response = self.client.post(reverse('adminpanel:user_create'),
+                                    {'email': 'c@test.kg', 'first_name': 'К'}, follow=True)
+        self.assertContains(response, 'Скопировать логин и пароль вместе')
+        self.assertContains(response, 'отправлено на c@test.kg')
+        # при следующем открытии списка пароля уже нет — в базе только хеш
+        self.assertNotContains(self.client.get(reverse('adminpanel:user_list')), 'id="cred-password"')
+        self.assertTrue(User.objects.get(email='c@test.kg').password.startswith('pbkdf2_'))
+
+    def test_search_and_status_together(self):
+        response = self.client.get(reverse('adminpanel:user_list'), {'q': 'айгер', 'status': 'active'})
+        self.assertContains(response, 's@test.kg')
 
     def test_duplicate_email_rejected(self):
         self.client.post(reverse('adminpanel:user_create'), {'email': 's@test.kg', 'first_name': 'X'})
@@ -347,6 +363,6 @@ class MailNotConfiguredTests(PanelTestBase):
         with override_settings(MAILERS=CONSOLE_MAIL), mock.patch('sys.stdout'):
             response = self.client.post(reverse('adminpanel:user_create'),
                                         {'email': 'new@test.kg', 'first_name': 'Азамат'}, follow=True)
-        self.assertContains(response, 'почта не настроена')
-        self.assertContains(response, 'пароль ')
+        self.assertContains(response, 'Почта не настроена')
+        self.assertContains(response, 'id="cred-password"')
         self.assertTrue(User.objects.filter(email='new@test.kg').exists())

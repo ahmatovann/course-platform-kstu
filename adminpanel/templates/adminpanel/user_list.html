@@ -1,11 +1,52 @@
 {# Ответственная: Фатима (А-5). Пользователи: список, поиск, блокировка, новый пароль #}
 {% extends 'adminpanel/base_panel.html' %}
-{% block title %}Пользователи — панель{% endblock %}
+{% block title %}Пользователи — панель<script>
+// Кнопки «Скопировать»: копируют текст элемента с id из data-copy в буфер обмена
+document.querySelectorAll('[data-copy]').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var text = document.getElementById(button.dataset.copy).textContent.trim();
+        var done = function () {
+            var old = button.textContent;
+            button.textContent = 'Скопировано ✓';
+            setTimeout(function () { button.textContent = old; }, 1500);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done);
+        } else {
+            // запасной способ для http без https
+            var area = document.createElement('textarea');
+            area.value = text; document.body.appendChild(area); area.select();
+            document.execCommand('copy'); area.remove(); done();
+        }
+    });
+});
+</script>
+{% endblock %}
 {% block panel %}
 <div class="panel-head">
     <h1>Пользователи</h1>
     <a class="btn" href="{% url 'adminpanel:user_create' %}">+ Новый пользователь</a>
 </div>
+{% if credentials %}
+    {# Только что выданные логин и пароль — показываются один раз, с кнопками «Скопировать» #}
+    <section class="panel-card panel-card-accent credentials">
+        <h2>Данные для входа</h2>
+        <p class="muted">
+            {% if credentials.sent %}Письмо с логином и паролем отправлено на {{ credentials.email }}.
+            {% elif not credentials.mail_ok %}Почта не настроена (нет файла .env) — письмо не ушло. Скопируйте логин и пароль и передайте человеку сами.
+            {% else %}Gmail не принял письмо (проверьте адрес и пароль приложения в .env, интернет). Скопируйте логин и пароль и передайте человеку сами.{% endif %}
+        </p>
+        <div class="cred-row"><span>Логин</span><code id="cred-login">{{ credentials.email }}</code><button type="button" data-copy="cred-login">Скопировать</button></div>
+        <div class="cred-row"><span>Пароль</span><code id="cred-password">{{ credentials.password }}</code><button type="button" data-copy="cred-password">Скопировать</button></div>
+        <pre id="cred-all" class="visually-hidden">Course Platform — данные для входа
+Сайт: {{ request.scheme }}://{{ request.get_host }}/accounts/login/
+Логин: {{ credentials.email }}
+Пароль: {{ credentials.password }}</pre>
+        <p class="row-actions"><button type="button" data-copy="cred-all" class="primary">Скопировать логин и пароль вместе</button></p>
+        <p class="muted small-note">Пароль показывается только сейчас: в базе он хранится зашифрованным (хешем, п. 4.2 ТЗ), и посмотреть его позже нельзя. Потеряли — нажмите «Новый пароль».</p>
+    </section>
+{% endif %}
+
 <form method="get" class="panel-filter">
     <label for="q" class="visually-hidden">Поиск</label>
     <input id="q" name="q" value="{{ query }}" placeholder="Почта или имя">
@@ -23,7 +64,7 @@
         <tbody>
             {% for person in users %}
                 <tr>
-                    <td>{{ person.email }}</td>
+                    <td><span id="email-{{ person.pk }}">{{ person.email }}</span> <button type="button" class="small copy-btn" data-copy="email-{{ person.pk }}" title="Скопировать почту" aria-label="Скопировать почту {{ person.email }}">⧉</button></td>
                     <td>{{ person.first_name }}</td>
                     <td>{% if person.is_active %}<span class="tag tag-on">Активен</span>{% else %}<span class="tag tag-off">Заблокирован</span>{% endif %}</td>
                     <td>{{ person.courses_count }}</td>
@@ -47,4 +88,25 @@
         </tbody>
     </table>
 </div>
+<script>
+// Кнопки «Скопировать»: копируют текст элемента с id из data-copy в буфер обмена
+document.querySelectorAll('[data-copy]').forEach(function (button) {
+    button.addEventListener('click', function () {
+        var text = document.getElementById(button.dataset.copy).textContent.trim();
+        var done = function () {
+            var old = button.textContent;
+            button.textContent = 'Скопировано ✓';
+            setTimeout(function () { button.textContent = old; }, 1500);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(done);
+        } else {
+            // запасной способ для http без https
+            var area = document.createElement('textarea');
+            area.value = text; document.body.appendChild(area); area.select();
+            document.execCommand('copy'); area.remove(); done();
+        }
+    });
+});
+</script>
 {% endblock %}

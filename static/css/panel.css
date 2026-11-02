@@ -279,3 +279,43 @@ button.danger {
 .panel-card-warn p {
     margin: 6px 0 0;
 }
+/* Выданные логин и пароль с кнопками «Скопировать» */
+.cred-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+.cred-row span {
+    min-width: 70px;
+    font-weight: 700;
+}
+.cred-row code {
+    padding: 6px 10px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    font-size: 18px;
+    user-select: all;
+}
+.cred-row button, .credentials button.primary, button.copy-btn {
+    min-height: 32px;
+    padding: 2px 10px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    color: var(--ink, #121212);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+.credentials button.primary {
+    background: var(--yellow, #ffd84d);
+    color: #121212;
+}
+button.copy-btn {
+    min-height: 26px;
+    padding: 0 6px;
+}
+.small-note {
+    font-size: 13px;
+}

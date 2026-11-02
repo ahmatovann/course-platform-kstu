@@ -320,18 +320,35 @@ def user_list(request):
     status = request.GET.get('status', '')
     users = User.objects.filter(is_staff=False).annotate(
         courses_count=Count('enrollments', distinct=True)).order_by('email')
+    if status == 'active':
+        users = users.filter(is_active=True)
+    elif status == 'blocked':
+        users = users.filter(is_active=False)
     if query:
         # Поиск без учёта больших и маленьких букв. SQLite умеет это только для
         # латиницы, поэтому сравниваем в Python через casefold() — работает и для кириллицы
         needle = query.casefold()
         users = [u for u in users if needle in u.email.casefold() or needle in u.first_name.casefold()]
-    if status == 'active':
-        users = users.filter(is_active=True)
-    elif status == 'blocked':
-        users = users.filter(is_active=False)
     return render(request, 'adminpanel/user_list.html', {
         'users': users, 'query': query, 'status': status,
+        # Логин и пароль, только что выданные администратором (показываются один раз)
+        'credentials': request.session.pop('panel_credentials', None),
     })
+
+
+# Выдать пароль: письмо на почту + один раз показать логин и пароль в панели
+# с кнопками «Скопировать». Пароль кладётся в сессию только до следующей
+# страницы (user_list сразу его забирает через pop). В базе пароль хранится
+# только хешем (п. 4.2 ТЗ), поэтому посмотреть его позже нельзя — только выдать новый.
+def deliver_password(request, user, password, send):
+    configured = mail_configured()
+    sent = send(request, user, password) if configured else False
+    if not configured:
+        send(request, user, password)  # почты нет — письмо напечатается в терминале
+    request.session['panel_credentials'] = {
+        'email': user.email, 'password': password, 'sent': sent, 'mail_ok': configured,
+    }
+    return sent
 
 
 # Создание учётной записи: сайт придумывает пароль и отправляет логин и пароль
@@ -345,15 +362,10 @@ def user_create(request):
         password = make_password()
         user.set_password(password)
         user.save()
-        if not mail_configured():
-            send_account_email(request, user, password)  # письмо уйдёт в терминал
-            messages.warning(request, f'Аккаунт создан, но почта не настроена (нет файла .env) — письмо не ушло. '
-                                      f'Передайте человеку: логин {user.email}, пароль {password}')
-        elif send_account_email(request, user, password):
+        if deliver_password(request, user, password, send_account_email):
             messages.success(request, f'Аккаунт создан. Логин и пароль отправлены на {user.email}.')
         else:
-            messages.warning(request, f'Аккаунт создан, но письмо не отправилось. '
-                                      f'Передайте человеку: логин {user.email}, пароль {password}')
+            messages.warning(request, 'Аккаунт создан, но письмо не отправилось — скопируйте логин и пароль ниже.')
         return redirect('adminpanel:user_list')
     return render(request, 'adminpanel/form.html', {
         'form': form,
@@ -382,15 +394,12 @@ def user_new_password(request, pk):
     password = make_password()
     user.set_password(password)
     user.save(update_fields=['password'])
-    if not mail_configured():
-        send_new_password_email(request, user, password)  # письмо уйдёт в терминал
-        messages.warning(request, f'Почта не настроена (нет файла .env) — письмо не ушло. '
-                                  f'Новый пароль для {user.email}: {password}')
-    elif send_new_password_email(request, user, password):
+    if deliver_password(request, user, password, send_new_password_email):
         messages.success(request, f'Новый пароль отправлен на {user.email}.')
     else:
-        messages.warning(request, f'Письмо не отправилось. Новый пароль для {user.email}: {password}')
-    return back_to(request, 'adminpanel:user_list')
+        messages.warning(request, 'Новый пароль выдан, но письмо не отправилось — скопируйте его ниже.')
+    # данные для входа показываются на странице «Пользователи»
+    return redirect('adminpanel:user_list')
 
 
 # ---------------------------------------------------------------- А-6. Прогресс
