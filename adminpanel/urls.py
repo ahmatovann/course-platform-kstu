@@ -39,4 +39,7 @@ urlpatterns = [
     # А-6. Прогресс
     path('users/<int:pk>/progress/', views.user_progress, name='user_progress'),
     path('progress/', views.progress_overview, name='progress'),
+    # Сверх ТЗ: администратор записывает ученика на курс или отчисляет
+    path('enrollments/add/', views.enrollment_add, name='enrollment_add'),
+    path('enrollments/<int:pk>/remove/', views.enrollment_remove, name='enrollment_remove'),
 ]

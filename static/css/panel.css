@@ -205,3 +205,68 @@ button.danger {
     background: var(--coral, #fdecea);
     color: var(--ink, #121212);
 }
+
+/* Сверх ТЗ: выделенный блок «Записать ученика на курс» и главные кнопки */
+.panel-card-accent {
+    box-shadow: 4px 4px 0 var(--ink, #121212);
+}
+.panel-card-accent h2 {
+    margin-top: 0;
+}
+.panel-filter button.primary {
+    background: var(--yellow, #ffd84d);
+    color: #121212;
+}
+/* Быстрые действия на «Обзоре» */
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+}
+.quick {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--yellow, #ffd84d);
+    color: #121212;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--ink, #121212);
+}
+.quick span {
+    font-size: 14px;
+}
+.quick:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink, #121212);
+}
+/* Шаги «Как наполнить курс»: сделанный шаг — зелёный с галочкой */
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+    padding: 0;
+    list-style: none;
+}
+.steps li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    color: var(--ink, #121212);
+}
+.steps li span {
+    font-size: 13px;
+}
+.steps li.done {
+    background: #BDEBCB;
+    color: #121212;
+}
+.steps li.done b::after {
+    content: " ✓";
+}

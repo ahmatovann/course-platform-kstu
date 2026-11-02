@@ -17,6 +17,14 @@
 </div>
 <p class="muted">{% if course.is_published %}Курс опубликован — виден в каталоге.{% else %}Курс скрыт — в каталоге его нет.{% endif %}</p>
 
+{# Подсказка: 4 шага наполнения курса, сделанные отмечены галочкой #}
+<ol class="steps" aria-label="Как наполнить курс">
+    <li class="{% if steps.level %}done{% endif %}"><b>1. Уровень</b><span>кнопка «+ Уровень» внизу</span></li>
+    <li class="{% if steps.lesson %}done{% endif %}"><b>2. Уроки</b><span>в уровне «+ Урок»: видео, описание, файлы</span></li>
+    <li class="{% if steps.quiz %}done{% endif %}"><b>3. Тест</b><span>в уровне «+ Тест уровня», затем «+ Вопрос»</span></li>
+    <li class="{% if steps.published %}done{% endif %}"><b>4. Публикация</b><span>кнопка «Опубликовать курс» вверху</span></li>
+</ol>
+
 {# А-2. Уровни по порядку #}
 {% for level in levels %}
     <section class="panel-card">
@@ -47,12 +55,12 @@
             <a class="btn" href="{% url 'adminpanel:lesson_create' level.pk %}">+ Урок</a>
             {# А-4. Тест уровня и порог сдачи #}
             <a class="btn" href="{% url 'adminpanel:quiz_edit' level.pk %}">
-                {% if level.quiz %}Тест: {{ level.quiz.questions.count }} вопр., порог {{ level.quiz.pass_score }} %{% else %}+ Создать тест{% endif %}
+                {% if level.quiz %}Тест: {{ level.quiz.questions.count }} вопр., порог {{ level.quiz.pass_score }} % — изменить{% else %}+ Тест уровня{% endif %}
             </a>
         </div>
     </section>
 {% empty %}
-    <p class="muted">Уровней пока нет.</p>
+    <p class="muted">Уровней пока нет — начните с кнопки «+ Уровень».</p>
 {% endfor %}
 
 <div class="panel-actions">

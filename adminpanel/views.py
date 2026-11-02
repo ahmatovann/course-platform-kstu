@@ -120,7 +120,14 @@ def course_delete(request, pk):
 def course_detail(request, pk):
     course = get_object_or_404(Course, pk=pk)
     levels = course.levels.order_by('order').prefetch_related('lessons__materials')
-    return render(request, 'adminpanel/course_detail.html', {'course': course, 'levels': levels})
+    # Подсказка «Как наполнить курс»: какие шаги уже сделаны (галочка) — уровень, урок, тест, публикация
+    steps = {
+        'level': course.levels.exists(),
+        'lesson': Lesson.objects.filter(level__course=course).exists(),
+        'quiz': Question.objects.filter(quiz__level__course=course).exists(),
+        'published': course.is_published,
+    }
+    return render(request, 'adminpanel/course_detail.html', {'course': course, 'levels': levels, 'steps': steps})
 
 
 # ---------------------------------------------------------------- А-2. Уровни
@@ -374,10 +381,14 @@ def user_new_password(request, pk):
 def user_progress(request, pk):
     student = get_object_or_404(User, pk=pk, is_staff=False)
     enrollments = Enrollment.objects.filter(user=student).select_related('course')
-    courses = [course_progress(student, e.course) for e in enrollments]
+    # к прогрессу каждого курса добавляем номер записи — для кнопки «Отчислить»
+    courses = [{**course_progress(student, e.course), 'enrollment_pk': e.pk} for e in enrollments]
     certificates = Certificate.objects.filter(user=student).select_related('course')
+    # Курсы, на которые ученика ещё можно записать (опубликованные, где он ещё не учится)
+    available = Course.objects.filter(is_published=True).exclude(enrollments__user=student).order_by('title')
     return render(request, 'adminpanel/user_progress.html', {
         'student': student, 'courses': courses, 'certificates': certificates,
+        'available': available,
     })
 
 
@@ -395,4 +406,43 @@ def progress_overview(request):
                      'completed': progress['is_completed']})
     return render(request, 'adminpanel/progress.html', {
         'rows': rows, 'courses': Course.objects.order_by('title'), 'course_id': course_id,
+        # для формы «Записать ученика на курс»
+        'students': User.objects.filter(is_staff=False).order_by('email'),
+        'published_courses': Course.objects.filter(is_published=True).order_by('title'),
     })
+
+
+# ---------------------------------------------------------------- Сверх ТЗ: запись на курс администратором
+# По ТЗ (Ф-6) ученик записывается на курс сам. Дополнительно администратор
+# может сам записать ученика на курс (открыть ему доступ) или отчислить его.
+# Записать можно только на опубликованный курс: скрытый курс ученик не увидит.
+
+def post_int(request, name):
+    # Число из формы; если пришло не число — 0 (такого id в базе нет → 404)
+    value = request.POST.get(name, '')
+    return int(value) if value.isdigit() else 0
+
+
+@staff_required
+@require_POST
+def enrollment_add(request):
+    student = get_object_or_404(User, pk=post_int(request, 'user'), is_staff=False)
+    course = get_object_or_404(Course, pk=post_int(request, 'course'), is_published=True)
+    # get_or_create — повторная запись не создаст дубль
+    _, created = Enrollment.objects.get_or_create(user=student, course=course)
+    if created:
+        messages.success(request, f'{student.email} записан на курс «{course.title}». Курс появился у него в «Моих курсах».')
+    else:
+        messages.info(request, f'{student.email} уже записан на курс «{course.title}».')
+    return back_to(request, 'adminpanel:progress')
+
+
+# Отчислить: запись удаляется, курс пропадает из «Моих курсов» ученика.
+# Просмотренные уроки и попытки тестов остаются — при новой записи прогресс вернётся.
+@staff_required
+@require_POST
+def enrollment_remove(request, pk):
+    enrollment = get_object_or_404(Enrollment.objects.select_related('user', 'course'), pk=pk)
+    enrollment.delete()
+    messages.success(request, f'{enrollment.user.email} отчислен с курса «{enrollment.course.title}».')
+    return back_to(request, 'adminpanel:progress')

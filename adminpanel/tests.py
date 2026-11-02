@@ -284,3 +284,48 @@ class ProgressTests(PanelTestBase):
         response = self.client.get(reverse('adminpanel:dashboard'))
         self.assertContains(response, 'попыток тестов')
         self.assertContains(response, 's@test.kg')
+
+
+class EnrollmentByAdminTests(PanelTestBase):
+    # Сверх ТЗ: администратор записывает ученика на курс и отчисляет
+    def test_admin_enrolls_student(self):
+        response = self.client.post(reverse('adminpanel:enrollment_add'),
+                                    {'user': self.student.pk, 'course': self.course.pk}, follow=True)
+        self.assertTrue(Enrollment.objects.filter(user=self.student, course=self.course).exists())
+        self.assertContains(response, 'записан на курс')
+        # курс появился у ученика в «Моих курсах»
+        self.client.force_login(self.student)
+        self.assertContains(self.client.get(reverse('courses:my_courses')), 'Python')
+
+    def test_second_enroll_no_duplicate(self):
+        for _ in range(2):
+            self.client.post(reverse('adminpanel:enrollment_add'), {'user': self.student.pk, 'course': self.course.pk})
+        self.assertEqual(Enrollment.objects.filter(user=self.student, course=self.course).count(), 1)
+
+    def test_hidden_course_admin_and_bad_input_refused(self):
+        hidden = Course.objects.create(title='Черновик')
+        url = reverse('adminpanel:enrollment_add')
+        self.assertEqual(self.client.post(url, {'user': self.student.pk, 'course': hidden.pk}).status_code, 404)
+        self.assertEqual(self.client.post(url, {'user': self.admin.pk, 'course': self.course.pk}).status_code, 404)
+        self.assertEqual(self.client.post(url, {'user': 'abc', 'course': ''}).status_code, 404)
+        self.assertEqual(self.client.get(url).status_code, 405)  # только POST
+        self.assertFalse(Enrollment.objects.exists())
+
+    def test_admin_removes_enrollment(self):
+        enrollment = Enrollment.objects.create(user=self.student, course=self.course)
+        self.client.post(reverse('adminpanel:enrollment_remove', args=[enrollment.pk]))
+        self.assertFalse(Enrollment.objects.filter(pk=enrollment.pk).exists())
+
+    def test_student_cannot_enroll_others(self):
+        other = User.objects.create_user(username='o@test.kg', email='o@test.kg', password='Pass12345!')
+        enrollment = Enrollment.objects.create(user=other, course=self.course)
+        self.client.force_login(self.student)
+        self.client.post(reverse('adminpanel:enrollment_add'), {'user': other.pk, 'course': self.course.pk})
+        self.client.post(reverse('adminpanel:enrollment_remove', args=[enrollment.pk]))
+        self.assertTrue(Enrollment.objects.filter(pk=enrollment.pk).exists())
+
+    def test_pages_show_new_controls(self):
+        self.assertContains(self.client.get(reverse('adminpanel:progress')), 'Записать ученика на курс')
+        self.assertContains(self.client.get(reverse('adminpanel:user_progress', args=[self.student.pk])), 'Записать на курс')
+        self.assertContains(self.client.get(reverse('adminpanel:dashboard')), 'Быстрые действия')
+        self.assertContains(self.client.get(reverse('adminpanel:course_detail', args=[self.course.pk])), '+ Тест уровня')

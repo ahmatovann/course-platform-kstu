@@ -12,9 +12,13 @@
     <div class="stat"><b>{{ stats.certificates }}</b><span>сертификатов выдано</span></div>
 </div>
 
-<div class="panel-actions">
-    <a class="btn" href="{% url 'adminpanel:course_create' %}">+ Новый курс</a>
-    <a class="btn" href="{% url 'adminpanel:user_create' %}">+ Новый пользователь</a>
+{# Быстрые действия — самые частые задачи администратора одной кнопкой #}
+<h2>Быстрые действия</h2>
+<div class="quick-grid">
+    <a class="quick" href="{% url 'adminpanel:course_create' %}"><b>+ Новый курс</b><span>название, описание — потом уровни, уроки и тесты</span></a>
+    <a class="quick" href="{% url 'adminpanel:course_list' %}"><b>+ Тест к уровню</b><span>откройте курс → у нужного уровня кнопка «+ Тест уровня»</span></a>
+    <a class="quick" href="{% url 'adminpanel:user_create' %}"><b>+ Новый пользователь</b><span>логин и пароль уйдут на почту</span></a>
+    <a class="quick" href="{% url 'adminpanel:progress' %}#enroll"><b>+ Записать на курс</b><span>открыть ученику доступ к курсу</span></a>
 </div>
 
 <h2>Последние попытки тестов</h2>

@@ -6,11 +6,38 @@
 <h1>{{ student.first_name|default:student.email }}</h1>
 <p class="muted">{{ student.email }} · {% if student.is_active %}активен{% else %}заблокирован{% endif %} · сертификатов: {{ certificates|length }}</p>
 
+{# Сверх ТЗ: записать этого ученика на курс #}
+<section class="panel-card panel-card-accent">
+    <h2>Записать на курс</h2>
+    {% if available %}
+        <form method="post" action="{% url 'adminpanel:enrollment_add' %}" class="panel-filter">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ student.pk }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <label for="enroll-course" class="visually-hidden">Курс</label>
+            <select id="enroll-course" name="course" required>
+                <option value="">— выберите курс —</option>
+                {% for course in available %}<option value="{{ course.pk }}">{{ course.title }}</option>{% endfor %}
+            </select>
+            <button type="submit" class="primary">+ Записать</button>
+        </form>
+    {% else %}
+        <p class="muted">Ученик уже записан на все опубликованные курсы.</p>
+    {% endif %}
+</section>
+
 {% for item in courses %}
     <section class="panel-card">
         <div class="panel-head">
             <h2>{{ item.course.title }}</h2>
-            <b class="big-percent">{{ item.percent }} %</b>
+            <div class="row-actions">
+                <b class="big-percent">{{ item.percent }} %</b>
+                <form method="post" action="{% url 'adminpanel:enrollment_remove' item.enrollment_pk %}" onsubmit="return confirm('Отчислить с курса «{{ item.course.title }}»?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="danger small">Отчислить</button>
+                </form>
+            </div>
         </div>
         <div class="bar" role="progressbar" aria-valuenow="{{ item.percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Прогресс курса"><div style="width: {{ item.percent }}%"></div></div>
         <div class="table-box">
