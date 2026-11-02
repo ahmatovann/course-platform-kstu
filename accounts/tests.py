@@ -54,7 +54,7 @@ class AccountTests(TestCase):
 
     def test_admin_login_redirect(self):
         response = self.client.post(reverse('login'), {'username': 'admin@test.kg', 'password': 'Admin12345!'})
-        self.assertEqual(response['Location'], '/admin/')
+        self.assertEqual(response['Location'], reverse('adminpanel:dashboard'))
 
     def test_wrong_password(self):
         response = self.client.post(reverse('login'), {'username': 'u@test.kg', 'password': 'wrong'})

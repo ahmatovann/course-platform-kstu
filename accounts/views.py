@@ -32,7 +32,8 @@ class LoginView(auth_views.LoginView):
         # По ТЗ (Э1) администратор попадает в панель администратора,
         # обучающийся — в раздел «Мои курсы».
         if self.request.user.is_staff:
-            return '/admin/'
+            # Э5 (Фатима): своя панель администратора вместо стандартной /admin/
+            return reverse('adminpanel:dashboard')
         return reverse('courses:my_courses')
 
 

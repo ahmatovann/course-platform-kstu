@@ -24,6 +24,10 @@ from .services import (build_program, issue_certificate_if_completed,
 # Ф-4. Каталог курсов: главная страница со всеми опубликованными курсами
 # и поиском по названию.
 def catalog(request):
+    # п. 4.1.4 ТЗ (Э5): у администратора нет каталога — он попадает в свою панель
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('adminpanel:dashboard')
+
     # 1. Берём из базы только опубликованные курсы (is_published=True).
     #    annotate + Count сразу считают для каждого курса число уровней
     #    и уроков — они показываются внизу карточки («Уровней: 2 · Уроков: 4»).
@@ -39,9 +43,13 @@ def catalog(request):
     query = request.GET.get('q', '').strip()
 
     # 3. Если что-то ввели — оставляем курсы, в названии которых есть этот текст.
-    #    icontains — «содержит», без учёта больших и маленьких букв.
+    #    Без учёта больших и маленьких букв.
+    #    Э5: SQLite сравнивает без учёта регистра только латиницу, поэтому
+    #    «основы» не находил «Основы Python». Сравниваем в Python через
+    #    casefold() — так поиск работает и для русских названий.
     if query:
-        courses = courses.filter(title__icontains=query)
+        needle = query.casefold()
+        courses = [course for course in courses if needle in course.title.casefold()]
 
     # 4. Отдаём данные в шаблон courses/catalog.html
     return render(request, 'courses/catalog.html', {
@@ -112,6 +120,9 @@ def enroll(request, pk):
 # Ф-6. «Мои курсы»: курсы, на которые записан пользователь
 @login_required
 def my_courses(request):
+    # п. 4.1.4 ТЗ (Э5): у администратора нет «Моих курсов»
+    if request.user.is_staff:
+        return redirect('adminpanel:dashboard')
     # select_related('course') — сразу берём данные курса вместе с записью
     enrollments = list(Enrollment.objects.filter(user=request.user).select_related('course'))
     # Ф-12 (Э4). У каждого курса — процент прохождения и сертификат, если курс пройден
