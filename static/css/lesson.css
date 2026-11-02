@@ -73,3 +73,11 @@
 .lesson-status form {
     margin: 0;
 }
+
+/* А-3 (Э5, Фатима). Видео YouTube по ссылке — пропорции 16:9 */
+.lesson-iframe {
+    display: block;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+}

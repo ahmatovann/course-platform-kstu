@@ -1,5 +1,6 @@
 # Совместно: модель базы данных
 # Таблицы курсов, уровней, уроков и прохождения курса (совместная задача #1)
+import re
 import secrets
 
 from django.conf import settings
@@ -54,6 +55,15 @@ class Lesson(models.Model):
     description = models.TextField('Описание', blank=True)
     # Видеофайл урока сохраняется в папку media/videos/.
     video = models.FileField('Видео', upload_to='videos/', blank=True)
+    # А-3 (Э5). Видео можно не загружать файлом, а дать ссылкой
+    # (YouTube или прямая ссылка на .mp4). По ТЗ: «Загрузка видео (файл или ссылка)».
+    video_url = models.URLField('Ссылка на видео', blank=True)
+
+    # Для YouTube-ссылки — адрес для встраивания (iframe). Иначе пустая строка.
+    @property
+    def youtube_embed(self):
+        match = re.search(r'(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([\w-]{11})', self.video_url or '')
+        return f'https://www.youtube.com/embed/{match.group(1)}' if match else ''
 
     class Meta:
         verbose_name = 'урок'
