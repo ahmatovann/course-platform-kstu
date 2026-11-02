@@ -1,1 +1,38 @@
-{# Ответственная: Фатима (А-1 – А-6) #}
+{# Ответственная: Фатима (А-1 – А-6). Обзор: главные цифры платформы #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Панель администратора{% endblock %}
+{% block panel %}
+<h1>Обзор</h1>
+<div class="stat-grid">
+    <a class="stat" href="{% url 'adminpanel:course_list' %}"><b>{{ stats.courses }}</b><span>курсов, из них опубликовано {{ stats.published }}</span></a>
+    <div class="stat"><b>{{ stats.lessons }}</b><span>уроков</span></div>
+    <a class="stat" href="{% url 'adminpanel:user_list' %}"><b>{{ stats.students }}</b><span>учеников, заблокировано {{ stats.blocked }}</span></a>
+    <a class="stat" href="{% url 'adminpanel:progress' %}"><b>{{ stats.enrollments }}</b><span>записей на курсы</span></a>
+    <div class="stat"><b>{{ stats.attempts }}</b><span>попыток тестов</span></div>
+    <div class="stat"><b>{{ stats.certificates }}</b><span>сертификатов выдано</span></div>
+</div>
+
+<div class="panel-actions">
+    <a class="btn" href="{% url 'adminpanel:course_create' %}">+ Новый курс</a>
+    <a class="btn" href="{% url 'adminpanel:user_create' %}">+ Новый пользователь</a>
+</div>
+
+<h2>Последние попытки тестов</h2>
+<div class="table-box">
+    <table class="panel-table">
+        <thead><tr><th>Когда</th><th>Ученик</th><th>Курс · тест</th><th>Результат</th></tr></thead>
+        <tbody>
+            {% for attempt in recent %}
+                <tr>
+                    <td>{{ attempt.created_at|date:"d.m.Y H:i" }}</td>
+                    <td><a href="{% url 'adminpanel:user_progress' attempt.user.pk %}">{{ attempt.user.email }}</a></td>
+                    <td>{{ attempt.quiz.level.course.title }} · {{ attempt.quiz.title }}</td>
+                    <td>{{ attempt.score }} % — {% if attempt.passed %}сдан{% else %}не сдан{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4" class="muted">Попыток пока нет.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

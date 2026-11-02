@@ -1,0 +1,36 @@
+{# Ответственная: Фатима (А-6). Прогресс одного пользователя по курсам и уровням #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Прогресс {{ student.email }} — панель{% endblock %}
+{% block panel %}
+<p class="crumbs"><a href="{% url 'adminpanel:user_list' %}">← Пользователи</a></p>
+<h1>{{ student.first_name|default:student.email }}</h1>
+<p class="muted">{{ student.email }} · {% if student.is_active %}активен{% else %}заблокирован{% endif %} · сертификатов: {{ certificates|length }}</p>
+
+{% for item in courses %}
+    <section class="panel-card">
+        <div class="panel-head">
+            <h2>{{ item.course.title }}</h2>
+            <b class="big-percent">{{ item.percent }} %</b>
+        </div>
+        <div class="bar" role="progressbar" aria-valuenow="{{ item.percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Прогресс курса"><div style="width: {{ item.percent }}%"></div></div>
+        <div class="table-box">
+            <table class="panel-table">
+                <thead><tr><th>Уровень</th><th>Статус</th><th>Уроки</th><th>Тест</th><th>Попыток</th></tr></thead>
+                <tbody>
+                    {% for row in item.levels %}
+                        <tr>
+                            <td>{{ forloop.counter }}. {{ row.level.title }}</td>
+                            <td>{% if row.is_complete %}<span class="tag tag-on">Пройден</span>{% elif row.is_open %}<span class="tag tag-mid">Открыт</span>{% else %}<span class="tag tag-off">Закрыт</span>{% endif %}</td>
+                            <td>{{ row.lessons_watched }} из {{ row.lessons_total }}</td>
+                            <td>{% if not row.quiz %}нет теста{% elif row.best_score is None %}не сдавал{% else %}лучший {{ row.best_score }} % — {% if row.test_passed %}сдан{% else %}не сдан{% endif %}{% endif %}</td>
+                            <td>{{ row.attempts_count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% empty %}
+    <p class="muted">Пользователь ещё не записан ни на один курс.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{# Ответственная: Фатима (А-6). Сводный прогресс: все ученики по курсам #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Прогресс — панель{% endblock %}
+{% block panel %}
+<h1>Прогресс учеников</h1>
+<form method="get" class="panel-filter">
+    <label for="course" class="visually-hidden">Курс</label>
+    <select id="course" name="course">
+        <option value="">Все курсы</option>
+        {% for course in courses %}
+            <option value="{{ course.pk }}" {% if course_id == course.pk|stringformat:"d" %}selected{% endif %}>{{ course.title }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Показать</button>
+</form>
+<div class="table-box">
+    <table class="panel-table">
+        <thead><tr><th>Ученик</th><th>Курс</th><th>Записан</th><th>Пройдено</th><th></th></tr></thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>{{ row.enrollment.user.email }}</td>
+                    <td>{{ row.enrollment.course.title }}</td>
+                    <td>{{ row.enrollment.enrolled_at|date:"d.m.Y" }}</td>
+                    <td>{{ row.percent }} %{% if row.completed %} · <span class="tag tag-on">курс пройден</span>{% endif %}</td>
+                    <td><a href="{% url 'adminpanel:user_progress' row.enrollment.user.pk %}">Подробнее</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="muted">Записей на курсы пока нет.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
