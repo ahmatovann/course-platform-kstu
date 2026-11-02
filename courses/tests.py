@@ -51,6 +51,8 @@ class CatalogAndCourseTests(CourseTestBase):
 
     def test_search(self):
         self.assertContains(self.client.get('/?q=pyth'), 'Python')
+        Course.objects.create(title='Основы Django', is_published=True)
+        self.assertContains(self.client.get('/?q=основы'), 'Основы Django')  # кириллица без учёта регистра
         self.assertNotContains(self.client.get('/?q=zzz'), 'Урок A')
 
     # Ф-5. Карточка курса

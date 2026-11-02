@@ -1,0 +1,64 @@
+{# Ответственная: Фатима (А-1 – А-4). Структура курса: уровни, уроки, материалы, тесты #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}{{ course.title }} — панель{% endblock %}
+{% block panel %}
+<p class="crumbs"><a href="{% url 'adminpanel:course_list' %}">Курсы</a></p>
+<div class="panel-head">
+    <h1>{{ course.title }}</h1>
+    <div class="row-actions">
+        <a class="btn" href="{% url 'adminpanel:course_edit' course.pk %}">Изменить курс</a>
+        <form method="post" action="{% url 'adminpanel:course_toggle' course.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit">{% if course.is_published %}Скрыть курс{% else %}Опубликовать курс{% endif %}</button>
+        </form>
+        {% if course.is_published %}<a href="{% url 'courses:course_detail' course.pk %}">Как видит ученик</a>{% endif %}
+    </div>
+</div>
+<p class="muted">{% if course.is_published %}Курс опубликован — виден в каталоге.{% else %}Курс скрыт — в каталоге его нет.{% endif %}</p>
+
+{# А-2. Уровни по порядку #}
+{% for level in levels %}
+    <section class="panel-card">
+        <div class="panel-head">
+            <h2>Уровень {{ level.order }}. {{ level.title }}</h2>
+            <div class="row-actions">
+                <a href="{% url 'adminpanel:level_edit' level.pk %}">Изменить</a>
+                <form method="post" action="{% url 'adminpanel:level_delete' level.pk %}" onsubmit="return confirm('Удалить уровень со всеми уроками и тестом?')">
+                    {% csrf_token %}<button type="submit" class="danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+        {# А-3. Уроки уровня #}
+        <ol class="panel-list">
+            {% for lesson in level.lessons.all %}
+                <li>
+                    <a href="{% url 'adminpanel:lesson_edit' lesson.pk %}">{{ lesson.title }}</a>
+                    <span class="muted">
+                        · {% if lesson.video %}видео-файл{% elif lesson.video_url %}видео по ссылке{% else %}без видео{% endif %}
+                        · материалов: {{ lesson.materials.all|length }}
+                    </span>
+                </li>
+            {% empty %}
+                <li class="muted">Уроков пока нет.</li>
+            {% endfor %}
+        </ol>
+        <div class="row-actions">
+            <a class="btn" href="{% url 'adminpanel:lesson_create' level.pk %}">+ Урок</a>
+            {# А-4. Тест уровня и порог сдачи #}
+            <a class="btn" href="{% url 'adminpanel:quiz_edit' level.pk %}">
+                {% if level.quiz %}Тест: {{ level.quiz.questions.count }} вопр., порог {{ level.quiz.pass_score }} %{% else %}+ Создать тест{% endif %}
+            </a>
+        </div>
+    </section>
+{% empty %}
+    <p class="muted">Уровней пока нет.</p>
+{% endfor %}
+
+<div class="panel-actions">
+    <a class="btn" href="{% url 'adminpanel:level_create' course.pk %}">+ Уровень</a>
+    <form method="post" action="{% url 'adminpanel:course_delete' course.pk %}" onsubmit="return confirm('Удалить курс полностью? Уровни, уроки, тесты и записи учеников удалятся.')">
+        {% csrf_token %}<button type="submit" class="danger">Удалить курс</button>
+    </form>
+</div>
+{% endblock %}

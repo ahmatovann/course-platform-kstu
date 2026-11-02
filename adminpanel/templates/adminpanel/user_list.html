@@ -1,0 +1,50 @@
+{# Ответственная: Фатима (А-5). Пользователи: список, поиск, блокировка, новый пароль #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Пользователи — панель{% endblock %}
+{% block panel %}
+<div class="panel-head">
+    <h1>Пользователи</h1>
+    <a class="btn" href="{% url 'adminpanel:user_create' %}">+ Новый пользователь</a>
+</div>
+<form method="get" class="panel-filter">
+    <label for="q" class="visually-hidden">Поиск</label>
+    <input id="q" name="q" value="{{ query }}" placeholder="Почта или имя">
+    <label for="status" class="visually-hidden">Статус</label>
+    <select id="status" name="status">
+        <option value="">Все</option>
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Активные</option>
+        <option value="blocked" {% if status == 'blocked' %}selected{% endif %}>Заблокированные</option>
+    </select>
+    <button type="submit">Найти</button>
+</form>
+<div class="table-box">
+    <table class="panel-table">
+        <thead><tr><th>Почта</th><th>Имя</th><th>Статус</th><th>Курсов</th><th>Действия</th></tr></thead>
+        <tbody>
+            {% for person in users %}
+                <tr>
+                    <td>{{ person.email }}</td>
+                    <td>{{ person.first_name }}</td>
+                    <td>{% if person.is_active %}<span class="tag tag-on">Активен</span>{% else %}<span class="tag tag-off">Заблокирован</span>{% endif %}</td>
+                    <td>{{ person.courses_count }}</td>
+                    <td class="row-actions">
+                        <a href="{% url 'adminpanel:user_progress' person.pk %}">Прогресс</a>
+                        <form method="post" action="{% url 'adminpanel:user_toggle' person.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" {% if person.is_active %}class="danger"{% endif %}>{% if person.is_active %}Заблокировать{% else %}Разблокировать{% endif %}</button>
+                        </form>
+                        <form method="post" action="{% url 'adminpanel:user_new_password' person.pk %}" onsubmit="return confirm('Выдать новый пароль? Старый перестанет действовать.')">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit">Новый пароль</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5" class="muted">Пользователей не найдено.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

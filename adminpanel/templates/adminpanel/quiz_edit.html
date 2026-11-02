@@ -1,0 +1,42 @@
+{# Ответственная: Фатима (А-2, А-4). Конструктор теста уровня: порог сдачи, вопросы, варианты #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Тест уровня — панель{% endblock %}
+{% block panel %}
+<p class="crumbs"><a href="{% url 'adminpanel:course_detail' level.course.pk %}">← {{ level.course.title }}</a> · Уровень {{ level.order }}. {{ level.title }}</p>
+<div class="form-box panel-form">
+    <h1>Тест уровня</h1>
+    <p class="muted">Порог сдачи — сколько процентов правильных ответов нужно, чтобы открылся следующий уровень. По ТЗ по умолчанию 80 %.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить тест</button>
+    </form>
+</div>
+
+{% if quiz %}
+    <div class="panel-head">
+        <h2>Вопросы ({{ questions|length }})</h2>
+        <a class="btn" href="{% url 'adminpanel:question_create' level.pk %}">+ Вопрос</a>
+    </div>
+    {% for question in questions %}
+        <section class="panel-card">
+            <p><b>{{ forloop.counter }}. {{ question.text }}</b></p>
+            <ul class="panel-list">
+                {% for answer in question.answers.all %}
+                    {# Правильный вариант видит только администратор #}
+                    <li>{% if answer.is_correct %}<span class="tag tag-on">верный</span>{% endif %} {{ answer.text }}</li>
+                {% endfor %}
+            </ul>
+            <div class="row-actions">
+                <a href="{% url 'adminpanel:question_edit' level.pk question.pk %}">Изменить</a>
+                <form method="post" action="{% url 'adminpanel:question_delete' question.pk %}" onsubmit="return confirm('Удалить вопрос?')">
+                    {% csrf_token %}<button type="submit" class="danger">Удалить</button>
+                </form>
+            </div>
+        </section>
+    {% empty %}
+        <p class="muted">Вопросов пока нет — добавьте первый.</p>
+    {% endfor %}
+    <p><a href="{% url 'quizzes:quiz' quiz.pk %}">Посмотреть тест, как видит ученик →</a></p>
+{% endif %}
+{% endblock %}

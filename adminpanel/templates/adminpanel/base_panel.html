@@ -1,0 +1,26 @@
+{# Ответственная: Фатима (А-1 – А-6) — этап Э5 #}
+{# Каркас панели администратора: слева меню разделов, справа содержимое. #}
+{# Все страницы панели наследуют этот файл: {% extends 'adminpanel/base_panel.html' %} #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}<link rel="stylesheet" href="{% static 'css/panel.css' %}">{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <nav class="panel-nav" aria-label="Разделы панели">
+        <p class="panel-nav-title">Панель администратора</p>
+        {# Подсветка текущего раздела — по имени адреса из adminpanel/urls.py #}
+        {% with n=request.resolver_match.url_name %}
+        <a href="{% url 'adminpanel:dashboard' %}" {% if n == 'dashboard' %}class="active"{% endif %}>Обзор</a>
+        <a href="{% url 'adminpanel:course_list' %}" {% if 'course' in n or 'level' in n or 'lesson' in n or 'quiz' in n or 'question' in n %}class="active"{% endif %}>Курсы</a>
+        <a href="{% url 'adminpanel:user_list' %}" {% if n == 'user_list' or n == 'user_create' %}class="active"{% endif %}>Пользователи</a>
+        <a href="{% url 'adminpanel:progress' %}" {% if 'progress' in n %}class="active"{% endif %}>Прогресс</a>
+        {% endwith %}
+        <a href="/admin/">Django admin</a>
+    </nav>
+    <div class="panel-main">
+        {% block panel %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

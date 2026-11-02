@@ -1,0 +1,36 @@
+{# Ответственная: Фатима (А-1). Список курсов: опубликовать, скрыть, изменить, удалить #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}Курсы — панель{% endblock %}
+{% block panel %}
+<div class="panel-head">
+    <h1>Курсы</h1>
+    <a class="btn" href="{% url 'adminpanel:course_create' %}">+ Новый курс</a>
+</div>
+<div class="table-box">
+    <table class="panel-table">
+        <thead><tr><th>Курс</th><th>Статус</th><th>Уровней</th><th>Уроков</th><th>Учеников</th><th>Действия</th></tr></thead>
+        <tbody>
+            {% for course in courses %}
+                <tr>
+                    <td><a href="{% url 'adminpanel:course_detail' course.pk %}">{{ course.title }}</a></td>
+                    <td>{% if course.is_published %}<span class="tag tag-on">Опубликован</span>{% else %}<span class="tag tag-off">Скрыт</span>{% endif %}</td>
+                    <td>{{ course.levels_count }}</td>
+                    <td>{{ course.lessons_count }}</td>
+                    <td>{{ course.students_count }}</td>
+                    <td class="row-actions">
+                        {# Кнопки — POST-формы: изменения только по нажатию, с защитой csrf_token #}
+                        <form method="post" action="{% url 'adminpanel:course_toggle' course.pk %}">
+                            {% csrf_token %}
+                            <button type="submit">{% if course.is_published %}Скрыть{% else %}Опубликовать{% endif %}</button>
+                        </form>
+                        <a href="{% url 'adminpanel:course_edit' course.pk %}">Изменить</a>
+                        {% if course.is_published %}<a href="{% url 'courses:course_detail' course.pk %}">Как видит ученик</a>{% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="muted">Курсов пока нет.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

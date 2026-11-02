@@ -1,0 +1,20 @@
+{# Ответственная: Фатима (А-1 – А-5). Общая страница формы: курс, уровень, вопрос, пользователь #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}{{ title }} — панель{% endblock %}
+{% block panel %}
+<p class="crumbs">
+    {% if back.1 %}<a href="{% url back.0 back.1 %}">← Назад</a>{% else %}<a href="{% url back.0 %}">← Назад</a>{% endif %}
+</p>
+<div class="form-box panel-form">
+    <h1>{{ title }}</h1>
+    {% if note %}<p class="muted">{{ note }}</p>{% endif %}
+    {# Общие ошибки формы (например, «правильный вариант пустой») #}
+    {% if form.non_field_errors %}<div class="message message-error">{{ form.non_field_errors.0 }}</div>{% endif %}
+    {# enctype — нужен, если в форме есть файл #}
+    <form method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

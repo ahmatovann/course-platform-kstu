@@ -1,0 +1,48 @@
+{# Ответственная: Фатима (А-3). Урок: описание, видео (файл или ссылка), материалы #}
+{% extends 'adminpanel/base_panel.html' %}
+{% block title %}{% if lesson %}{{ lesson.title }}{% else %}Новый урок{% endif %} — панель{% endblock %}
+{% block panel %}
+<p class="crumbs"><a href="{% url 'adminpanel:course_detail' level.course.pk %}">← {{ level.course.title }}</a> · Уровень {{ level.order }}. {{ level.title }}</p>
+<div class="panel-columns">
+    <div class="form-box panel-form">
+        <h1>{% if lesson %}Урок «{{ lesson.title }}»{% else %}Новый урок{% endif %}</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Сохранить урок</button>
+        </form>
+        {% if lesson %}
+            <p><a href="{% url 'courses:lesson' lesson.pk %}">Посмотреть, как видит ученик →</a></p>
+            <form method="post" action="{% url 'adminpanel:lesson_delete' lesson.pk %}" onsubmit="return confirm('Удалить урок?')">
+                {% csrf_token %}<button type="submit" class="danger">Удалить урок</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {# Материалы можно добавлять, когда урок уже сохранён #}
+    {% if lesson %}
+        <div class="form-box panel-form">
+            <h2>Материалы урока</h2>
+            <ul class="panel-list">
+                {% for material in materials %}
+                    <li>
+                        <a href="{{ material.file.url }}" target="_blank">{{ material.title }}</a>
+                        <form method="post" action="{% url 'adminpanel:material_delete' material.pk %}" class="inline" onsubmit="return confirm('Удалить материал?')">
+                            {% csrf_token %}<button type="submit" class="danger small">Удалить</button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li class="muted">Материалов пока нет.</li>
+                {% endfor %}
+            </ul>
+            <h3>Добавить файл</h3>
+            <form method="post" action="{% url 'adminpanel:material_add' lesson.pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ material_form.as_p }}
+                <p class="muted">PDF, презентация, документ, аудио или архив.</p>
+                <button type="submit">Загрузить</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

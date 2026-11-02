@@ -17,7 +17,7 @@ def my_progress(request):
     # он курсы не проходит, а прогресс учеников смотрит в своей панели (А-6).
     if request.user.is_staff:
         messages.info(request, 'У администратора нет раздела «Мой прогресс».')
-        return redirect('/admin/')
+        return redirect('adminpanel:dashboard')
 
     # 1. Курсы, на которые записан пользователь (Ф-6), сначала новые записи
     enrollments = (Enrollment.objects.filter(user=request.user)

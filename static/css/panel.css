@@ -1,0 +1,207 @@
+/* Ответственная: Фатима (А-1 – А-6) — этап Э5 */
+/* Панель администратора: меню слева, содержимое справа. На телефоне меню над содержимым. */
+.panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+.panel-nav {
+    flex: 1 1 200px;
+    max-width: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    box-shadow: 4px 4px 0 var(--ink, #121212);
+}
+.panel-nav-title {
+    margin: 0 0 8px;
+    font-weight: 800;
+}
+.panel-nav a {
+    padding: 8px 10px;
+    color: var(--ink, #121212);
+    font-weight: 700;
+    text-decoration: none;
+}
+.panel-nav a.active,
+.panel-nav a:hover {
+    background: var(--yellow, #ffd84d);
+    color: #121212;
+}
+.panel-main {
+    flex: 999 1 560px;
+    min-width: 0;
+}
+.panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+.panel-head h1, .panel-head h2 {
+    margin: 0;
+}
+.panel-actions, .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+}
+.row-actions {
+    margin: 0;
+}
+.row-actions form, form.inline {
+    display: inline;
+    margin: 0;
+}
+.row-actions button, .panel-filter button, form.inline button, .panel-actions button {
+    min-height: 36px;
+    padding: 4px 12px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    color: var(--ink, #121212);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+button.danger {
+    background: var(--coral, #fdecea);
+}
+button.small {
+    min-height: 28px;
+    padding: 2px 8px;
+    font-size: 13px;
+}
+/* Карточки с цифрами на «Обзоре» */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+    color: var(--ink, #121212);
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--ink, #121212);
+}
+.stat b {
+    font-size: 36px;
+    font-weight: 800;
+}
+.panel-card {
+    margin: 16px 0;
+    padding: 16px 20px;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+}
+.panel-list {
+    margin: 12px 0;
+    padding-left: 22px;
+}
+.panel-list li {
+    margin: 6px 0;
+}
+.panel-form {
+    max-width: 640px;
+    margin: 0 0 24px;
+}
+.panel-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    font: inherit;
+}
+.panel-form ul {
+    list-style: none;
+    padding: 0;
+}
+.panel-form input[type="radio"], .panel-form input[type="checkbox"] {
+    width: auto;
+}
+.panel-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+.panel-columns > * {
+    flex: 1 1 320px;
+}
+.panel-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+}
+.panel-filter input, .panel-filter select {
+    min-height: 40px;
+    padding: 6px 10px;
+}
+.table-box {
+    overflow-x: auto;
+    border: 2px solid var(--ink, #121212);
+    background: var(--card, #fff);
+}
+.panel-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.panel-table th, .panel-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--ink, #121212);
+    text-align: left;
+    vertical-align: middle;
+}
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 2px solid #121212;
+    color: #121212;
+    font-size: 13px;
+    font-weight: 800;
+}
+.tag-on { background: #BDEBCB; }
+.tag-mid { background: #FFD84D; }
+.tag-off { background: #E4E1DA; }
+.big-percent {
+    font-size: 32px;
+}
+.bar {
+    height: 14px;
+    margin: 12px 0;
+    border: 2px solid var(--ink, #121212);
+}
+.bar div {
+    height: 100%;
+    background: var(--accent, #2d3a8c);
+}
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+@media (max-width: 700px) {
+    .panel-nav {
+        max-width: none;
+    }
+}
+/* Кнопки удаления внутри форм — красноватые, чтобы не нажать случайно */
+.form-box button.danger,
+button.danger {
+    background: var(--coral, #fdecea);
+    color: var(--ink, #121212);
+}
